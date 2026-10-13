@@ -1,16 +1,36 @@
-# BOXZY iOS 交付资料
+# BOXZY Product Admin
 
-按指定仓库归档的 2026-10-13 最终交付版本。
+BOXZY 英文后台交互原型及中文产品说明。2026-10-13 更新仓库，内容与已确认的库存告警离线版一致。
 
-| 目录 | 内容 | 打开方式 |
-| --- | --- | --- |
-| [boxzy-product-ios](boxzy-product-ios) | 原生 SwiftUI 代码、素材、测试及验证记录 | Xcode 打开 `boxzy-product-ios/BoxzyApp-Prism/BoxzyApp.xcodeproj` |
-| [boxzy-product-ios-guide](boxzy-product-ios-guide) | 38 页最终 UI / 老 UI 对比、UI 参数、产品说明、异常状态图 | 下载后用浏览器打开 `boxzy-product-ios-guide/BOXZY-iOS-PRODUCT-GUIDE.html` |
+## 打开方式
 
-## 离线下载
+通过 **Code → Download ZIP** 下载并完整解压，双击 `index.html`。无需安装依赖、编译或启动服务器。
 
-通过 Code → Download ZIP 下载并解压。说明文档需保留同级 assets 文件夹，81 张图片均随仓库提供，可完全离线阅读。
+| 文件 | 内容 |
+| --- | --- |
+| [index.html](index.html) | 离线入口 |
+| [ui.html](ui.html) | 英文后台交互原型 |
+| [product-guide.html](product-guide.html) | 中文产品说明、字段定义、计算规则和交互截图 |
+| [src/](src/) | JavaScript 与 CSS 参考源码；运行代码已内嵌到 ui.html |
+| [screens/](screens/) / [references/](references/) | 文档截图和设计参考，须保持相对路径 |
+| [START-HERE.txt](START-HERE.txt) | 离线使用说明和运行边界 |
 
-## 当前实现范围
+## 已包含
 
-已包含移除邀请/推荐码内容后的版本。当前原生项目为本地业务演示，支付、账号、税费、奖池与物流需接入服务端。提现成功/失败最终设计已补充到说明，原生 completed 分支和状态路由仍需接入。各目录 README 说明详细边界。
+- 日期快捷筛选、四类 Box 筛选及明细。
+- 销量、实付销售额、奖品回收、申请寄出、待处理奖品和未开盒数据。
+- 已归属收入、成本与利润，以及未归属收入及其两类状态。
+- Box 及奖池配置，Min Value / Max Value 输入和合并展示。
+- 每个 Box/SKU 独立库存告警：默认关闭，无默认阈值；开启后填写非负整数，剩余库存 ≤ 阈值时显示 Low stock。
+
+## 使用边界
+
+这是本地交互原型，内置数据为演示数据。草稿和编辑记录保存在当前浏览器，不会自动写回仓库。真实支付、订单、库存及告警通知服务尚未接入。内置图片和页面支持离线运行；新输入的远程图片链接和外部资源仍需网络。
+
+库存告警中 Apply changes 应用当前编辑，Save draft 保存草稿，Publish 更新演示中的已发布配置。详细口径以中文产品说明为准。
+
+## 校验
+
+[PACKAGE-VERIFICATION.json](PACKAGE-VERIFICATION.json) 保存已完成的离线浏览器验证记录；[SHA256-MANIFEST.json](SHA256-MANIFEST.json) 为后台交付文件的 SHA-256 清单，不包含仓库新增的 README、.gitignore 和 .nojekyll。
+
+此次提交替换原有 iOS 资料；原内容可通过 Git 提交历史恢复。

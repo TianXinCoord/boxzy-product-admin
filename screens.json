@@ -1,0 +1,282 @@
+[
+  {
+    "key": "boxes",
+    "title": "Box 列表",
+    "scene": "运营进入 Boxes。",
+    "function": "展示Box ID、图片名称、Open price、六类概率、Value range（Min – Max合并一列）、上线开关及Edit操作。价值范围放在Rarity probabilities之后、Status之前，以$最小值 – $最大值在一格内展示；创建和编辑仍保留两个独立必填输入。",
+    "interaction": "名称进入Prize pool，Edit进入Basic information；Create Box进入创建页。已发布Box显示当前发布配置；尚未发布的Box显示已保存输入。保存草稿不覆盖列表已发布值，发布成功后更新。",
+    "exception": "旧数据缺少价值范围时显示Not set，不自动猜测或补0。无发布配置不能上线。搜索无结果保持条件。",
+    "check": "本轮移除Box配置版本号、版本来源、历史查看及恢复入口；保留保存草稿和发布当前配置。",
+    "image": "screens/01-boxes.png"
+  },
+  {
+    "key": "create",
+    "title": "创建 Box",
+    "scene": "在列表点击 Create Box。",
+    "function": "使用完整页面填写 Box name、Open price、Box image URL、Web opening video URL、App opening video URL、六类 Rarity probabilities。所有业务字段为空，无 Description、单一 Rarity 或套用默认配置。 增加Displayed value range：Min Value和Max Value两个必填USD输入，手动配置前端展示范围；不从SKU市场价推导。",
+    "interaction": "Create & configure pool 校验基本字段及概率总和；成功生成 Box ID，保存为离线、未发布状态，进入空奖池。创建前奖池标签不可用，不展示发布和版本操作。Cancel 无输入直接返回列表；有输入先确认放弃。 范围随创建/保存草稿持久化，发布后供前端使用；取消恢复最近保存值。",
+    "exception": "名称不能为空；开盒价必须大于0；Box图片必须填写合法HTTPS URL；视频可留空，填写时须为HTTPS；六类概率均必须填写且每项0–100%，总和必须为100%。失败保留输入并显示具体字段错误。创建请求期间禁止重复提交。 两值必须非负、最多2位小数，Min Value不能大于Max Value；相等及0允许，空值不能当0，详细上限见字段定义。",
+    "check": "Box 创建是一次持久化动作；不能只靠前端跳转假装创建成功。重复请求需由服务端防重。",
+    "image": "screens/02-create.png"
+  },
+  {
+    "key": "probability-error",
+    "title": "概率校验失败",
+    "scene": "创建或保存时六类比例不是100%，图示总和99%。",
+    "function": "显示实时合计；错误时明确说明当前总和与必须达到的100%。",
+    "interaction": "阻止创建、保存和发布；将焦点移至第一个错误字段或概率区域。修改后重新校验；不自动按比例修正用户输入。",
+    "exception": "空值、负数、超过100、非数值均是错误。不能把空值当作已填写的0。采用十进制精度校验，避免浮点误差误判。",
+    "check": "图中99%的错误提示对应实际六项输入；正常100%显示成功状态。输入精度由接口统一，当前HTML示例支持0.01%。",
+    "image": "screens/03-probability-error.png"
+  },
+  {
+    "key": "basic",
+    "title": "编辑基本信息",
+    "scene": "从 Edit 或 Basic information 标签进入。",
+    "function": "编辑名称、价格、图片URL、Web／App开盒视频URL和六类概率；修改与奖池共用一个 Box 的当前编辑状态。 增加Displayed value range：Min Value和Max Value两个必填USD输入，手动配置前端展示范围；不从SKU市场价推导。",
+    "interaction": "标签切换保留未保存内容。价格修改只影响每抽毛收益；类别概率修改会重算全 Box 抽中概率和期望成本。底部 Cancel / Save draft / Publish 对整个 Box 生效。 范围随创建/保存草稿持久化，发布后供前端使用；取消恢复最近保存值。",
+    "exception": "同创建页校验。价格与图片未就绪不能提交。当前有正概率类别但还没有 SKU，可以保存合法字段的草稿；发布时必须补全。 两值必须非负、最多2位小数，Min Value不能大于Max Value；相等及0允许，空值不能当0，详细上限见字段定义。",
+    "check": "保存基本信息时必须同时保存当前奖池编辑内容，不能因切换标签遗漏另一页的修改。",
+    "image": "screens/04-basic.png"
+  },
+  {
+    "key": "pool",
+    "title": "奖池配置主页面",
+    "scene": "运营查看数据、调权重和评估整个 Box 的成本。",
+    "function": "上方经济指标始终覆盖整个 Box；分类标签仅筛选表格。每抽预计毛收益<0时，标题及金额标红，并显示Expected loss；≥0恢复正常，无法计算时显示—且不报亏损。指标下方不显示Before shipping and fees文案，费用口径保留在计算字典。保留 Product → Pricing → Probability & cost → Inventory 四组灰色表头；价格紧邻权重、抽中概率和每抽成本，右侧Inventory分为Stock remaining（剩余可抽）与Total drawn（累计抽出）两列，每格只显示数值，零库存另标Out of stock。库存列保留表头升降序排序，用于定位缺货和库存少的SKU；累计抽出仅作历史参考，不提供排序。取消独立排序下拉框及单元格内重复文案，行操作仍在末尾。剩余加累计抽出不定义为初始或总库存：中间可能存在补货、人工减库存。Excel保持两个独立字段。分类标签上方仅保留Add SKU。Import、Export和空池Download template入口均移除。",
+    "interaction": "仅六类标签，无 All；默认 Common。搜索当前分类名称或 SKU；切分类清空搜索并回第一页，不清空修改。价格、概率／成本及剩余库存列支持表头排序，累计抽出不排序；范围为筛选后全部记录。20/50/100条每页。权重直接在表内编辑，合法输入时立即重算；不显示旧权重。",
+    "exception": "权重为空、≤0或非有限数时不能计算有效结果或提交。库存0的SKU保留显示，概率为0。任一正概率类别没有有效SKU，全 Box成本显示 —，不可运行模拟或发布。",
+    "check": "任何筛选、排序或分页不能改变计算分母。当前页全部 SKU 随内容向下展开，不限制列表高度；使用整页纵向滚动，窄窗口仅表格横向滚动。底部分页可随页面滚动到达，全局操作栏不遮挡最后一行。",
+    "image": "screens/05-pool.png"
+  },
+  {
+    "key": "empty",
+    "title": "空奖池",
+    "scene": "新 Box 创建成功或当前类别尚未添加商品。",
+    "function": "全Box无商品时仅显示Add SKU。开盒价格保留；理论成本与毛收益显示 —。",
+    "interaction": "Add SKU 打开居中表单并明确选择 Category。不再提供导入、导出或模板下载入口。",
+    "exception": "全奖池空不能模拟或发布。当前分类搜索无结果时提示 No matching SKUs，不误导用户以为奖池被清空。",
+    "check": "空类别允许继续编辑其他类别；不自动改变分类概率。",
+    "image": "screens/06-empty.png"
+  },
+  {
+    "key": "add",
+    "title": "添加 SKU",
+    "scene": "点击全 Box 工具栏 Add SKU。",
+    "function": "居中弹窗，不提供 Existing SKU / New SKU 切换。填写名称、分类、图片、市场价、进货价、权重；初始库存默认10,000，可修改。SKU ID自动生成、不可填写。选择Category后，显示当前Box对应的Market price range（含上下限）；切换分类即时更新。四个已有Box用原表各自范围，新Box无范围资料则隐藏，不按相同售价自动套用。",
+    "interaction": "商品图片仅输入Product image URL。先通过外部网站上传获取图片直链，再复制粘贴。上传网站待配置，入口按钮暂禁用；已有直链可用。表单没有本地文件上传入口。Purchase / Market 自动计算。Add to current edits 校验通过后加入当前编辑内容并定位所选分类，重算概率；尚未保存或发布。首次保存/发布时生成稳定ID。",
+    "exception": "名称、分类、图片、价格与权重必填；市场价>0，进货价≥0，权重>0；初始库存为非负整数。图片URL读取失败保留表单并要求修正直链，不提示本地上传。",
+    "check": "新建商品库存只属于当前Box。草稿中的临时SKU不能产生真实抽奖或全局库存调整。市场价低于建议下限或高于建议上限时输入框及文案标红，边界值属于区间内；点击Add to current edits／Apply changes时弹出Confirm market price二次确认，Keep editing、关闭或Esc保留表单，Add anyway／Apply anyway仅应用当前编辑，不保存或发布。市场价>100美元且库存>50时，库存下方额外显示黄色文字High-value inventory risk，提示复核进货价和抽中概率；两个条件必须同时满足，不阻止提交。旧版表单截图不作为当前图片输入方式的依据。",
+    "image": "screens/07-add.png"
+  },
+  {
+    "key": "edit",
+    "title": "编辑 SKU",
+    "scene": "行尾三个点选择 Edit。",
+    "function": "弹窗展示完整商品名、当前分类、图片、价格、权重与只读SKU ID。库存显示只读，使用独立 Adjust stock 调整。",
+    "interaction": "Apply changes 仅写入当前编辑状态；改分类时同时重算原类别与新类别。取消或关闭弹窗不提交其中的修改。分类市场价参考范围随Category切换，规则与新增一致；不自动改价格；超区间标红并在提交时二次确认，确认后仍可应用。当前列表定位到修改后的类别。",
+    "exception": "输入规则与新增相同。更换图片URL需重新读取有效图片；成功提交前保留原SKU图片。失败不得静默保留错误链接并提交。SKU ID不允许改变。",
+    "check": "同一商品在多个 Box 中的配置和库存互不联动。本期没有共享库存逻辑。",
+    "image": "screens/08-edit.png"
+  },
+  {
+    "key": "stock",
+    "title": "调整库存",
+    "scene": "行菜单选择 Adjust stock。",
+    "function": "先明确选择 Add stock 或 Remove stock；默认 Add stock，数量留空。只输入正整数，不需要填写正负号。并排展示 Current stock → Stock after change，下方显示如120 + 30 = 150的计算式。",
+    "interaction": "确认按钮根据操作与数量显示 Add 30 units 或 Remove 30 units；减库存按钮使用红色。点击即确认并立即提交当前Box的库存事务。取消配置修改、修改配置均不能撤销该库存事务。库存从正数变0或从0恢复正数时重算同类概率。",
+    "exception": "数量必须是正整数；空值、0、负数、小数禁用确认。减少数量不得超过当前库存；超出时提示最大可减数。减到0时在弹窗内提示该SKU将缺货、概率归零并重算；允许确认。提交冲突时刷新当前库存，保留调整量并要求重新确认；失败不得显示成功或先修改真实库存。",
+    "check": "服务端需校验库存并发锁，记录操作人、时间、前值、增减与后值，并保证防重。原型用本地数据模拟事务，无真实库存接口。",
+    "image": "screens/09-stock.png"
+  },
+  {
+    "key": "remove",
+    "title": "移除 SKU",
+    "scene": "行菜单选择 Remove。",
+    "function": "使用居中二次确认，明确会重新分配同类别有效 SKU 的概率。",
+    "interaction": "确认后从当前编辑奖池移除，保留历史抽奖记录；Save draft 只保存草稿，Publish 才影响线上配置。Cancel 可撤回尚未保存的移除。",
+    "exception": "移除最后一个正概率类别的有效SKU后，可以保留草稿，但成本显示 —，不可模拟和发布。禁止自动把该类别概率分给其他类别。",
+    "check": "移除配置不等于删除商品历史、清空库存台账或删除订单。库存台账应按 Box + SKU 保留。",
+    "image": "screens/10-remove.png"
+  },
+  {
+    "key": "simulation-running",
+    "title": "动态库存模拟运行中",
+    "scene": "点击 Run simulation。",
+    "function": "复制当前完整Box配置和准确库存数量，最多模拟100,000抽。",
+    "interaction": "每抽扣减对应SKU的一份模拟库存，售罄后按原权重重算同类概率，再检查整盒理论毛收益。实际库存、Total drawn及上线状态保持不变。",
+    "exception": "开始前或售罄重算后整盒毛收益≤0，或正概率分类全部缺货时，立即结束模拟并显示原因。",
+    "check": "本轮不模拟补货。运行期间防止重复提交；输入变化使结果过期。",
+    "image": "screens/15-simulation-running.png"
+  },
+  {
+    "key": "simulation-result",
+    "title": "动态库存模拟结果",
+    "scene": "达到抽数上限或触发模拟停售后。",
+    "function": "展示完成／计划抽数、结束原因、累计收入、累计成本、累计毛收益、平均每抽毛收益、结束时整盒理论每抽毛收益及毛利率，并可展开本轮售罄商品及售罄抽数。",
+    "interaction": "Done关闭回当前页。所有数值使用同一次模拟的配置快照；任意库存数量或经济配置变化后标记Simulation outdated。",
+    "exception": "零抽时累计金额为0、平均值为—；正概率分类售罄时结束理论值为—。累计亏损不等于停售，累计盈利也不能覆盖下一抽理论亏损。",
+    "check": "模拟已实现动态扣库存与模拟停售，不修改真实库存、累计抽出或售卖状态；生产自动停售和通知服务仍未接入。新规则说明标红；旧固定概率截图不再作为本页依据。",
+    "image": "screens/16-simulation-result.png"
+  },
+  {
+    "key": "cancel",
+    "title": "取消修改",
+    "scene": "在底部点击 Cancel，且有未保存修改。",
+    "function": "弹窗解释恢复到最近一次成功保存的配置，并保留库存调整。",
+    "interaction": "Keep editing 返回；Discard changes 恢复最近保存基线并重算；停留当前Box编辑区。已保存草稿仍存在。有输入的新Box取消后回列表；未产生Box。",
+    "exception": "Cancel恢复最近保存基线，保留已保存草稿和独立库存调整；分类无数据时展示空态。",
+    "check": "浏览器刷新/关闭采用原生未保存提醒；同一Box两个标签之间切换保留工作状态。",
+    "image": "screens/17-cancel.png"
+  },
+  {
+    "key": "saving",
+    "title": "正在保存草稿",
+    "scene": "存在修改，点击 Save draft 并通过字段校验。",
+    "function": "全局保存范围为基本信息与所有分类，不限当前Tab。",
+    "interaction": "显示 Saving…，禁止重复保存和发布。服务端确认后更新保存基线；请求中不要把未保存状态提前清除。",
+    "exception": "字段非法时定位错误不发请求。图片转存未完成不能保存。库存事务仍独立；保存时不能回写过期库存。",
+    "check": "可以保存未补齐各类SKU的配置草稿，但已输入字段必须合法，六类概率仍需总和100%。",
+    "image": "screens/18-saving.png"
+  },
+  {
+    "key": "saved",
+    "title": "草稿已保存",
+    "scene": "保存成功。",
+    "function": "提示Draft saved. Not published.，当前发布配置保持不变。",
+    "interaction": "保存全部基本信息、价值范围和奖池输入；刷新或重新进入读取已保存草稿。可继续编辑或发布。",
+    "exception": "失败保留全部输入与旧保存基线；超时不知道是否成功时先查询提交结果，再决定重试。",
+    "check": "确认本地持久化成功才展示成功。本HTML模拟为浏览器localStorage，生产需服务端保存与并发冲突校验。",
+    "image": "screens/19-saved.png"
+  },
+  {
+    "key": "publish",
+    "title": "发布当前配置",
+    "scene": "点击Publish。",
+    "function": "发布基本信息、价值范围、媒体、概率和奖池的当前编辑内容。",
+    "interaction": "校验通过→确认→持久化当前发布配置→清空草稿及未保存标记。无需先保存草稿；上线Box新抽奖使用发布配置，离线Box仍离线。",
+    "exception": "范围为空、倒置或非法，概率不等于100%，正概率类别无可抽SKU时阻止；失败保留输入及旧发布配置。",
+    "check": "Min Value/Max Value随发布一起生效；不生成或展示递增版本号。真实接口须保证原子保存、防重与并发冲突保护。",
+    "image": "screens/20-publish.png"
+  },
+  {
+    "key": "published",
+    "title": "发布成功",
+    "scene": "持久化成功后。",
+    "function": "提示Configuration published；列表读取刚发布的Min Value和Max Value。",
+    "interaction": "留在当前页，工作状态与发布配置对齐，清空草稿及未保存标记。",
+    "exception": "失败不显示成功；后端结果未知应先核验，不能盲目重复提交。",
+    "check": "历史订单及采购快照不被当前价格覆盖。",
+    "image": "screens/21-published.png"
+  },
+  {
+    "key": "save-error",
+    "title": "保存失败",
+    "scene": "网络异常、服务端拒绝或本地演示存储不可用。",
+    "function": "用明确错误提示保存没有完成，同时保留编辑内容。",
+    "interaction": "恢复Save draft可操作，可重试或Export备份。不要跳走、不清空表单、不更新基线。",
+    "exception": "超时属于结果未知，先用提交ID核验；字段错误应定位字段；并发冲突应提示处理而非直接重试覆盖。",
+    "check": "原型提供失败示意状态；生产错误需要接口真实返回，不用固定延时冒充服务端成功。",
+    "image": "screens/25-save-error.png"
+  },
+  {
+    "key": "publish-error",
+    "title": "发布失败",
+    "scene": "发布接口返回明确失败。",
+    "function": "提示当前编辑保留、原线上配置V3仍生效。",
+    "interaction": "Continue editing关闭；Try again重新完整校验并确认发布。不得以保存草稿成功代替发布成功。",
+    "exception": "若响应丢失不能断言一定未发布，应显示正在确认结果，按幂等提交标识查询，不重复生成新配置。",
+    "check": "图示为明确失败情形。结果未知与明确失败在服务端集成时需分开实现。",
+    "image": "screens/26-publish-error.png"
+  },
+  {
+    "key": "simulation-error",
+    "title": "模拟失败",
+    "scene": "模拟服务不可用或本地运行出错。",
+    "function": "只影响这次校验结果；配置、草稿、库存与抽出数量不变。",
+    "interaction": "Close返回编辑；Try again对当前配置重新取快照运行。恢复Run simulation入口。",
+    "exception": "不能沿用旧结果并标记最新。输入无效属于前置校验错误，应直接指明字段/类别，区别于服务故障。",
+    "check": "",
+    "image": "screens/27-simulation-error.png"
+  },
+  {
+    "key": "offline",
+    "title": "Box 上下线",
+    "scene": "列表点击当前已开启的开关。",
+    "function": "Take this Box offline? 二次确认，提示停止新抽奖，保留配置和历史。",
+    "interaction": "确认后服务端成功才切换开关。上线只启用当前已发布配置，草稿不随开关生效。",
+    "exception": "上线时再次校验已发布配置是否具备有效库存。下线请求失败保持开启。已受理抽奖的完成/退款规则由订单服务处理，待后端接口明确。",
+    "check": "开关支持键盘、aria-checked与悬停说明，不依赖旁边Live/Offline文案。",
+    "image": "screens/28-offline.png"
+  },
+  {
+    "key": "row-menu",
+    "title": "行操作菜单",
+    "scene": "点击对应SKU行尾三个点。",
+    "function": "提供Edit、Adjust stock、Remove三项；移除使用红色语义。",
+    "interaction": "菜单固定定位在可视范围，不被表格滚动裁切；点击外部/Escape关闭；焦点应可进入菜单并返回触发按钮。",
+    "exception": "移除须二次确认；调整库存须明确立即生效范围。",
+    "check": "",
+    "image": "screens/29-row-menu.png"
+  },
+  {
+    "key": "long-name",
+    "title": "长商品名与信息密度",
+    "scene": "名称超过两行或使用较窄屏幕。",
+    "function": "Product列约320px：缩略图、最多两行名称、下方SKU ID。表格的全部经营数据保留。",
+    "interaction": "悬停或键盘聚焦显示完整名称浮层；也可在Edit中读取和修改完整名称。表格不设固定高度，当前页所有行自然展开，分页紧随列表；整页纵向滚动，窄窗口横向滚动时商品和行操作列固定。",
+    "exception": "浮层不得出屏或永久遮挡权重输入。不得仅依赖鼠标hover；焦点移出/Escape关闭。不能把截断文本写回数据源。",
+    "check": "原表有很长的英文目录名；本页为长名布局验证，图片及数值为演示数据，不代表商品真实售价或分类。",
+    "image": "screens/30-long-name.png"
+  },
+  {
+    "key": "cost-breakdown",
+    "title": "成本来源",
+    "scene": "点击 Expected cost / draw。",
+    "function": "解释当前整盒预计采购成本花在哪里：分类概率说明出奖机会，分类Cost / draw说明每抽金额，Share of cost说明占整盒成本的份额。Top 3 cost contributors列出当前贡献最高的最多三个SKU，帮助先找排查对象；不是最大涨幅、最高单价或单次最大赔付。每条同时展示进货价与整盒概率，说明贡献金额为何高。",
+    "interaction": "点击分类进入对应 Tab，按 Cost / draw 从高到低排列。关闭后保留当前编辑，不产生保存或发布。",
+    "exception": "计算输入非法时列出问题；整盒成本为零时占比显示 —。不把成本贡献叫成 SKU 利润。",
+    "check": "原始数值汇总后再格式化；当前分类筛选不能改变全盒汇总。前三按正贡献原值降序，不足三个按实际数量显示，全零显示空提示；弹窗使用本次打开时的一致计算结果，关闭修改后再次打开重新排序。使用当前编辑配置和当前库存计算。",
+    "image": "screens/31-cost-breakdown.png"
+  },
+  {
+    "key": "loss-publish",
+    "title": "亏损配置发布提醒",
+    "scene": "理论毛收益为负时点击 Publish。",
+    "function": "沿用一个发布确认弹窗，展示预计每抽亏损以及售价和成本。",
+    "interaction": "旧版离线原型：Keep editing返回修改，Publish和Set live仍可在提醒后继续。正式销售与恢复上线必须满足新增红字规则，不能用旧版确认弹窗绕过停售。",
+    "exception": "不可计算时先阻止发布并展示校验问题；零毛收益不标为亏损。",
+    "check": "该截图仅展示旧版原型提醒，自动停售服务尚未接入；正式可售条件以新增红字说明为准。未计费用的毛收益不等于净利润。",
+    "image": "screens/32-loss-publish.png"
+  },
+  {
+    "key": "stock-impact",
+    "title": "库存变化影响",
+    "scene": "调整库存使 SKU 从正数变为零或从零恢复。",
+    "function": "预览概率重算后的毛收益；若 SKU 在线上，使用已发布配置。",
+    "interaction": "沿用 Add stock / Remove stock 与数量预览；变化只在确认后写入，立即影响当前 Box 的库存。",
+    "exception": "正概率分类最后一个可抽 SKU 归零时，整盒无法计算。正式规则已确认：该情况或整盒理论每抽毛收益≤0时暂停整个Box并提醒；单SKU缺货且整盒仍盈利则继续销售。详见新增红字说明；服务端尚未实现。",
+    "check": "草稿权重和进货价不能混入线上影响预览。",
+    "image": "screens/33-stock-impact.png"
+  },
+  {
+    "key": "invalid-weight",
+    "title": "权重输入与校验",
+    "scene": "连续编辑行内 Weight。",
+    "function": "只更新计算信息，保留输入焦点和当前位置。",
+    "interaction": "输入合法时立即重算。非法时输入框标红，列出 SKU 原因，金额显示 —，禁用模拟；保存和发布仍做最终校验。",
+    "exception": "输入期间不重新排序，避免正在编辑的行跳走。空值不能按零权重忽略。",
+    "check": "输入后点击保存或发布不应被整表重绘吞掉；合法零进货价仍可计算。",
+    "image": "screens/34-invalid-weight.png"
+  },
+  {
+    "key": "stock-alert",
+    "title": "SKU 库存告警",
+    "scene": "Add SKU或Edit SKU的库存区域。",
+    "function": "沿用批准的英文设计：左侧库存及调整说明，右侧Stock alert。每个Box/SKU独立配置，默认Off且不预填阈值。图示为开启但尚未填写状态；默认关闭时不展示阈值输入。",
+    "interaction": "切换On显示Alert threshold (units) *；填写合法整数后允许提交。弹窗内关闭再开启保留尚未应用的输入；关闭并应用后清空该配置阈值。Apply changes只应用当前编辑，Save draft保存草稿，Publish更新已发布规则。取消或Esc丢弃本次弹窗输入。列表按当前编辑与最新剩余库存显示Low stock，悬停说明这是当前配置预览；保存草稿不改变线上规则。",
+    "exception": "开启且空值时禁用提交；非法非空输入显示字段错误。0允许；剩余库存等于阈值即触发，大于阈值即清除。原有库存风险提示与本告警独立；不改变库存、权重、概率、成本、模拟或Box上线状态。",
+    "check": "开发边界：本地原型实现配置、校验、持久化及列表条件预览，未连接真实库存告警服务。生产按Box ID+SKU ID读取已发布规则与权威剩余可抽库存，在发布规则或真实库存变化后判断。通知渠道、接收人、重复通知频率及恢复通知待确认，不能由本原型推断。",
+    "image": "screens/stock-alert-on.png"
+  }
+]

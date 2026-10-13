@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-12",
+  "mode": "Direct file:// Chrome",
+  "checks": [
+    "Dashboard default, active navigation, English request wording, approved section order",
+    "All six date shortcuts update results; no comparison or trend remains",
+    "Single-Box filter synchronizes summaries, profit and table",
+    "Custom date drafts require Apply; pending end-date balances ignore start date",
+    "Reverse date range shows error without replacing applied report",
+    "Explicit unrealized revenue, total boxes, both unresolved states and amounts",
+    "Realized profit summary and per-Box column; all prior comparisons and sales trend removed",
+    "Empty interval retains zeros and zero values",
+    "Prize-pool import/export removed; range merged after rarity probabilities",
+    "Boxes remains available; leaving dirty configuration for Dashboard prompts; report ledger unchanged",
+    "Min/Max are persisted as draft, survive reload, publish to list; economic inputs and results unchanged",
+    "Create requires both values; zero/equality allowed, invalid ranges blocked; legacy blanks and cancel preserved without inferred defaults",
+    "1600 / 1280 desktop and 390 narrow fallback: no outer-page or metric overflow",
+    "Updated all retained product-guide scene images; removed version chapters absent",
+    "Integrated guide: 30 parameter definitions, request rule, screenshot and navigation"
+  ],
+  "layouts": [
+    {
+      "width": 1600,
+      "pageOverflow": false,
+      "numericOverflow": false
+    },
+    {
+      "width": 1280,
+      "pageOverflow": false,
+      "numericOverflow": false
+    },
+    {
+      "width": 390,
+      "pageOverflow": false,
+      "numericOverflow": false
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": []
+}

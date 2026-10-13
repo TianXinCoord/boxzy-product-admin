@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-12",
+  "mode": "Extracted ZIP, direct file://, Chrome offline context",
+  "checks": [
+    "Extracted entry and dashboard load offline with embedded assets",
+    "Offline Box filter recomputes unrealized balance",
+    "Box range, input validation, embedded images and updated prize-pool toolbar work offline",
+    "Chinese guide and relative screenshot load offline"
+  ],
+  "jsErrors": [],
+  "externalRequests": [],
+  "stockAlerts": {
+    "checks": [
+      "Existing and new SKU default Off; threshold has no default",
+      "Blank, negative, fractional and overflow rejected; zero and inclusive threshold accepted",
+      "Cancel leaves SKU unchanged",
+      "Apply, draft and publish preserve lifecycle and Box isolation; no economics changes",
+      "Published threshold survives offline reload",
+      "Disabling removes threshold and low-stock preview"
+    ],
+    "jsErrors": [],
+    "externalRequests": [],
+    "mode": "Chrome offline file://"
+  },
+  "visualReview": "Desktop enabled and mobile form screenshots inspected"
+}

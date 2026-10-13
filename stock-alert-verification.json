@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Existing and new SKU default Off; threshold has no default",
+    "Blank, negative, fractional and overflow rejected; zero and inclusive threshold accepted",
+    "Cancel leaves SKU unchanged",
+    "Apply, draft and publish preserve lifecycle and Box isolation; no economics changes",
+    "Published threshold survives offline reload",
+    "Disabling removes threshold and low-stock preview"
+  ],
+  "jsErrors": [],
+  "externalRequests": [],
+  "mode": "Chrome offline file://"
+}

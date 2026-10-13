@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-12",
+  "checks": [
+    "Period totals and realized profit reconcile",
+    "Every Box and date filter reconciles with totals",
+    "Accepted shipping counts immediately without dispatch; duplicates deduplicate; failed request excluded",
+    "Pending is end-date stock including earlier purchases, independent of start",
+    "Historical pending excludes future choices; shipped date alone is not a request",
+    "Inclusive days implemented as half-open UTC timestamps",
+    "Historical market snapshots and missing valuations never silently become zero",
+    "Empty periods have zero realization",
+    "Cross-day attribution uses original payment, actual buyback, excludes pending and deduplicates outcomes",
+    "Missing cost or original payment propagates; real losses stay negative",
+    "Dates reject reverse, invalid, future and excessive intervals",
+    "Aggregation never mutates source ledger",
+    "Unrealized end-date balance splits opened/no choice and unopened original payments"
+  ],
+  "recordCount": 7650
+}
