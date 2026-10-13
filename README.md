@@ -34,3 +34,11 @@ BOXZY 英文后台交互原型及中文产品说明。2026-10-13 更新仓库，
 [PACKAGE-VERIFICATION.json](PACKAGE-VERIFICATION.json) 保存已完成的离线浏览器验证记录；[SHA256-MANIFEST.json](SHA256-MANIFEST.json) 为后台交付文件的 SHA-256 清单，不包含仓库新增的 README、.gitignore 和 .nojekyll。
 
 此次提交替换原有 iOS 资料；原内容可通过 Git 提交历史恢复。
+
+## 文件保留规则
+
+- `screens/` 保留中文说明的配图，以及桌面／窄屏、库存告警开关状态的验证截图。
+- `references/` 只保留当前 SKU 提示设计和[库存告警确认图](references/stock-alert-approved.png)。
+- 参数 JSON 供开发读取；验证记录供交付核验，不是临时运行缓存。
+- `src/xlsx.js`、`src/segmented-xlsx.js` 是构建页面中仍存在的兼容代码，操作入口已移除；清除实现需要单独修改并验证，不能只删除源码文件。
+- 已清理早期未引用效果图、生成提示词、废弃图片解析／超分方案及重复库存告警报告；旧文件仍可通过 Git 历史恢复。

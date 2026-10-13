@@ -22,5 +22,34 @@
     "externalRequests": [],
     "mode": "Chrome offline file://"
   },
-  "visualReview": "Desktop enabled and mobile form screenshots inspected"
+  "visualReview": "Desktop enabled and mobile form screenshots inspected",
+  "repositoryCleanup": {
+    "removed": [
+      "references/01-boxes.png",
+      "references/02-create-box.png",
+      "references/05-prize-pool.png",
+      "references/07-add-sku.png",
+      "references/11-import-file.png",
+      "references/22-version-history.png",
+      "references/box-media-2026-10-10.png",
+      "references/dashboard-approved-cn.png",
+      "references/base-prompts.json",
+      "references/grouped-header-prompts.json",
+      "references/long-name-prompts.json",
+      "references/image-pipeline-legacy-2026-10-09.html",
+      "references/super-resolution-baseline.py",
+      "stock-alert-verification.json"
+    ],
+    "bytesRemoved": 11444640,
+    "date": "2026-10-13",
+    "mode": "Chrome offline, file://",
+    "guideSectionsChecked": 35,
+    "checks": [
+      "Entry opens dashboard offline",
+      "All rendered guide sections have existing local links and images",
+      "Stock alert starts Off, enables empty required threshold and blocks Apply"
+    ],
+    "jsErrors": [],
+    "externalRequests": []
+  }
 }

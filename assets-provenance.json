@@ -1,6 +1,6 @@
 {
-  "referenceImages": "Generated in this conversation using built-in image_gen. See references and generation-prompts.json.",
+  "referenceImages": "Retained UI references were generated in this conversation with image_gen: references/sku-warnings-2026-10-10/ and references/stock-alert-approved.png. Current implementation screenshots are in screens/.",
   "productThumbnails": "Existing project assets/prize-references-20260928/*.webp; representative thumbnails, not verified matches for the long-name examples.",
   "names": "User-supplied Copy of TCG-sku-management.xlsx English catalog sheets.",
-  "values": "Four differentiated demo pools. Price bands/category shares come from the supplied workbook; catalog names retain workbook market-price snapshots. Demo-prefixed names, purchase cost (85% of market), inverse-price weights, stock and draw history are illustrative. See demo-data.json."
+  "values": "Four differentiated demo pools. Price bands/category shares come from the supplied workbook; catalog names retain workbook market-price snapshots. Demo-prefixed names, purchase cost (85% of market), inverse-price weights, stock and draw history are illustrative. See src/demo-data.js."
 }
