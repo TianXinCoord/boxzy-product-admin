@@ -14,7 +14,7 @@
 - 更新商品素材、奖池分组及寄送费用展示。
 - 移除推荐码、邀请奖励入口及相关文章。
 - 更新说明见 [README-UPDATED.md](README-UPDATED.md)，验证记录见 [verification.json](verification.json)。
-- [最终 UI、对比图和产品说明](../ios-guide)。
+- [最终 UI、对比图和产品说明](../boxzy-product-ios-guide)。
 
 ## 实现范围
 

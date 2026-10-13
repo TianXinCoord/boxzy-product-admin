@@ -4,8 +4,8 @@
 
 | 目录 | 内容 | 打开方式 |
 | --- | --- | --- |
-| [ios](ios) | 原生 SwiftUI 代码、素材、测试及验证记录 | Xcode 打开 `ios/BoxzyApp-Prism/BoxzyApp.xcodeproj` |
-| [ios-guide](ios-guide) | 38 页最终 UI / 老 UI 对比、UI 参数、产品说明、异常状态图 | 下载后用浏览器打开 `ios-guide/BOXZY-iOS-PRODUCT-GUIDE.html` |
+| [boxzy-product-ios](boxzy-product-ios) | 原生 SwiftUI 代码、素材、测试及验证记录 | Xcode 打开 `boxzy-product-ios/BoxzyApp-Prism/BoxzyApp.xcodeproj` |
+| [boxzy-product-ios-guide](boxzy-product-ios-guide) | 38 页最终 UI / 老 UI 对比、UI 参数、产品说明、异常状态图 | 下载后用浏览器打开 `boxzy-product-ios-guide/BOXZY-iOS-PRODUCT-GUIDE.html` |
 
 ## 离线下载
 
