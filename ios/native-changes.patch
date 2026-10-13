@@ -1,0 +1,3360 @@
+--- original/BoxzyApp/AddFundsFlowView.swift
++++ updated/BoxzyApp/AddFundsFlowView.swift
+@@ -22,21 +22,13 @@
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+ 
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.11), BoxzyTheme.blue.opacity(0.06), .clear],
+-                center: .topTrailing,
+-                startRadius: 18,
+-                endRadius: 360
+-            )
+-            .ignoresSafeArea()
+-
+             Group {
+                 switch screen {
+                 case .signIn:
+                     WelcomeSignInView(
+                         authenticated: completeAuthentication,
+                         headline: "Sign in to continue",
+-                        supportingMessage: "Sign in to continue your BOXXY experience.",
++                        supportingMessage: "Sign in to continue your BOXZY experience.",
+                         close: { dismiss() }
+                     )
+                 default:
+@@ -83,7 +75,7 @@
+ 
+             HStack {
+                 Text(sheetTitle)
+-                    .font(.system(size: 22, weight: .bold))
++                    .boxzyFont(22, weight: .bold)
+ 
+                 Spacer()
+ 
+@@ -91,7 +83,7 @@
+                     dismiss()
+                 } label: {
+                     Image(systemName: "xmark")
+-                        .font(.system(size: 16, weight: .semibold))
++                        .boxzyFont(16, weight: .semibold)
+                         .foregroundStyle(.white)
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.surface.opacity(0.78), in: Circle())
+@@ -139,7 +131,7 @@
+                 .fill(coinflowBlue)
+ 
+             Image(systemName: "arrow.triangle.2.circlepath")
+-                .font(.system(size: 18, weight: .semibold))
++                .boxzyFont(18, weight: .semibold)
+                 .foregroundStyle(.white)
+         }
+         .accessibilityHidden(true)
+@@ -171,7 +163,7 @@
+                     .padding(.top, 36)
+ 
+                 Text("Payment is processing")
+-                    .font(.system(size: 27, weight: .bold))
++                    .boxzyFont(27, weight: .bold)
+                     .multilineTextAlignment(.center)
+                     .padding(.top, 30)
+ 
+@@ -223,11 +215,10 @@
+                 .rotationEffect(.degrees(-62))
+ 
+             Image(systemName: "arrow.triangle.2.circlepath")
+-                .font(.system(size: 38, weight: .semibold))
++                .boxzyFont(38, weight: .semibold)
+                 .foregroundStyle(BoxzyTheme.blue)
+         }
+         .frame(width: 116, height: 116)
+-        .shadow(color: BoxzyTheme.blue.opacity(0.35), radius: 22)
+         .accessibilityHidden(true)
+     }
+ 
+@@ -256,7 +247,7 @@
+     private var informationCard: some View {
+         HStack(spacing: 18) {
+             Image(systemName: "info.circle")
+-                .font(.system(size: 34, weight: .medium))
++                .boxzyFont(34, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.blue)
+ 
+             Text("You can leave this screen. Your balance will update automatically when payment is confirmed.")
+@@ -296,7 +287,7 @@
+                     .padding(.top, 34)
+ 
+                 Text("Payment failed")
+-                    .font(.system(size: 27, weight: .bold))
++                    .boxzyFont(27, weight: .bold)
+                     .multilineTextAlignment(.center)
+                     .padding(.top, 30)
+ 
+@@ -343,12 +334,11 @@
+ 
+     private var failureSymbol: some View {
+         Image(systemName: "xmark")
+-            .font(.system(size: 42, weight: .medium))
++            .boxzyFont(42, weight: .medium)
+             .foregroundStyle(failureTint)
+             .frame(width: 112, height: 112)
+             .background(failureTint.opacity(0.05), in: Circle())
+             .overlay { Circle().stroke(failureTint, lineWidth: 4) }
+-            .shadow(color: failureTint.opacity(0.28), radius: 22)
+             .accessibilityHidden(true)
+     }
+ 
+@@ -381,7 +371,7 @@
+     private var failureMessage: some View {
+         HStack(spacing: 18) {
+             Image(systemName: "exclamationmark.circle")
+-                .font(.system(size: 34, weight: .medium))
++                .boxzyFont(34, weight: .medium)
+                 .foregroundStyle(failureTint)
+ 
+             Text("The payment was declined. Check your payment details or try again.")
+@@ -464,7 +454,9 @@
+     let withdrawal: Bool
+     var context: String? = nil
+     var isSubmitting = false
++    var continuesPurchase = false
+     let submit: (Double) -> Void
++    @Environment(\.dynamicTypeSize) private var typeSize
+     @State private var replaceOnNextDigit = true
+     private var value: Double { Double(amount) ?? 0 }
+     private var fee: Double { withdrawal ? 1.25 : 0 }
+@@ -484,21 +476,21 @@
+                             .font(.caption.weight(.bold)).foregroundStyle(BoxzyTheme.goldLight)
+                             .frame(minWidth: 44, minHeight: 44).accessibilityLabel("Use maximum withdrawal amount").accessibilityIdentifier("funds.max")
+                     }
+-                }.font(.system(size: 14)).padding(.horizontal, 14).frame(minHeight: 44)
++                }.boxzyFont(14).padding(.horizontal, 14).frame(minHeight: 44)
+                     .background(BoxzyTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                 VStack(spacing: 4) {
+                     HStack(alignment: .firstTextBaseline, spacing: 5) {
+-                        Text("$").font(.system(size: 28)).foregroundStyle(BoxzyTheme.muted)
+-                        Text(amount.isEmpty ? "0" : amount).font(.system(size: 50, weight: .medium, design: .rounded))
++                        Text("$").boxzyFont(28).foregroundStyle(BoxzyTheme.muted)
++                        Text(amount.isEmpty ? "0" : amount).boxzyFont(48, weight: .medium, design: .rounded)
+                             .monospacedDigit().lineLimit(1).minimumScaleFactor(0.5)
+                     }.accessibilityElement(children: .combine).accessibilityLabel("Amount \(currency)").accessibilityIdentifier("funds.amount")
+                     Text(withdrawal && value > min(balance, 2500) ? "Amount exceeds your available limit" : "Minimum \(withdrawal ? "withdrawal" : "deposit") \(minimum.formatted(.currency(code: "USD").locale(Locale(identifier: "en_US"))))")
+-                        .font(.system(size: 12)).foregroundStyle(valid || value == 0 ? BoxzyTheme.muted : .red)
++                        .boxzyFont(12).foregroundStyle(valid || value == 0 ? BoxzyTheme.muted : .red)
+                 }
+                 HStack(spacing: 8) {
+                     ForEach([25,50,100,250,500], id: \.self) { preset in
+                         Button("$\(preset)") { amount = String(preset); replaceOnNextDigit = true }
+-                            .font(.system(size: 14, weight: .semibold)).frame(maxWidth: .infinity).frame(height: 44)
++                            .boxzyFont(14, weight: .semibold).frame(maxWidth: .infinity).frame(height: 44)
+                             .foregroundStyle(value == Double(preset) ? BoxzyTheme.background : .white)
+                             .background(value == Double(preset) ? AnyShapeStyle(BoxzyTheme.primaryGradient) : AnyShapeStyle(BoxzyTheme.surface), in: RoundedRectangle(cornerRadius: 9))
+                             .overlay(RoundedRectangle(cornerRadius: 9).stroke(BoxzyTheme.stroke, lineWidth: 0.7))
+@@ -511,45 +503,46 @@
+                     ForEach(keys, id: \.self) { key in
+                         Button { press(key) } label: {
+                             Group {
+-                                if key == "⌫" { Image(systemName: "delete.left").font(.system(size: 22)) }
+-                                else { Text(key).font(.system(size: 24, weight: .medium)) }
++                                if key == "⌫" { Image(systemName: "delete.left").boxzyFont(22) }
++                                else { Text(key).boxzyFont(24, weight: .medium) }
+                             }.frame(maxWidth: .infinity).frame(height: 48)
+                                 .background(BoxzyTheme.surface, in: RoundedRectangle(cornerRadius: 10))
+-                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(BoxzyTheme.stroke.opacity(0.7), lineWidth: 0.7))
++                                
+                         }.buttonStyle(.plain).accessibilityLabel(key == "⌫" ? "Delete last digit" : key)
+                          .accessibilityIdentifier("funds.key.\(key == "⌫" ? "delete" : key == "." ? "decimal" : key)")
+                     }
+                 }
+                 VStack(alignment: .leading, spacing: 7) {
+-                    Text(withdrawal ? "Payout method" : "Payment method").font(.system(size: 13)).foregroundStyle(BoxzyTheme.muted)
++                    Text(withdrawal ? "Payout method" : "Payment method").boxzyFont(13).foregroundStyle(BoxzyTheme.muted)
+                     HStack(spacing: 10) {
+                         CoinflowMark().frame(width: 30, height: 30)
+                         VStack(alignment: .leading, spacing: 2) {
+-                            Text("Coinflow").font(.system(size: 16, weight: .semibold))
+-                            if withdrawal { Text("1–3 business days").font(.system(size: 12)).foregroundStyle(BoxzyTheme.muted) }
++                            Text("Coinflow").boxzyFont(16, weight: .semibold)
++                            if withdrawal { Text("1–3 business days").boxzyFont(12).foregroundStyle(BoxzyTheme.muted) }
+                         }
+                         Spacer()
+                         Image(systemName: "checkmark.circle.fill").foregroundStyle(BoxzyTheme.goldLight).font(.title3)
+                     }.padding(.horizontal, 14).frame(height: 56)
+                         .background(BoxzyTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(BoxzyTheme.gold.opacity(0.65), lineWidth: 0.8))
++                        
+                 }
+-                HStack {
++                if withdrawal { Text("Daily remaining: $2,500.00").boxzyFont(12).foregroundStyle(BoxzyTheme.muted) }
++            }.padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 12).disabled(isSubmitting)
++        }
++        .safeAreaInset(edge: .bottom, spacing: 0) {
++            VStack(spacing: 10) {
++                (typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout())) {
+                     Text("Fee \(fee.formatted(.currency(code: "USD").locale(Locale(identifier: "en_US"))))").foregroundStyle(BoxzyTheme.muted)
+                     Spacer()
+                     Text("\(withdrawal ? "You receive" : "New balance") \((withdrawal ? max(0, value-fee) : balance+value).formatted(.currency(code: "USD").locale(Locale(identifier: "en_US"))))")
+-                }.font(.system(size: 12)).monospacedDigit()
+-                if withdrawal { Text("Daily remaining: $2,500.00").font(.system(size: 12)).foregroundStyle(BoxzyTheme.muted) }
+-            }.padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 12).disabled(isSubmitting)
+-        }
+-        .safeAreaInset(edge: .bottom, spacing: 0) {
+-            VStack(spacing: 7) {
+-                Button(isSubmitting ? "Processing…" : withdrawal ? "Review withdrawal" : "Deposit \(currency)") { guard valid && !isSubmitting else { return }; submit(value) }
+-                    .font(.system(size: 17, weight: .semibold)).buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 14))
++                }.boxzyFont(13).monospacedDigit()
++
++                Button(isSubmitting ? "Processing…" : withdrawal ? "Review withdrawal" : continuesPurchase ? "Deposit \(currency) & continue" : "Deposit \(currency)") { guard valid && !isSubmitting else { return }; submit(value) }
++                    .boxzyFont(16, weight: .semibold).buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 14))
+                     .accessibilityIdentifier("funds.submit")
+                     .disabled(!valid || isSubmitting).opacity(valid ? 1 : 0.4)
+                 Label("Secure \(withdrawal ? "payout" : "checkout")", systemImage: "lock")
+-                    .font(.system(size: 12)).foregroundStyle(BoxzyTheme.muted)
++                    .boxzyFont(12).foregroundStyle(BoxzyTheme.muted)
+             }.padding(.horizontal, 20).padding(.top, 10).padding(.bottom, 8).background(BoxzyTheme.background)
+         }
+     }
+--- original/BoxzyApp/BoxDetailsView.swift
++++ updated/BoxzyApp/BoxDetailsView.swift
+@@ -35,7 +35,7 @@
+                     boxSelector
+                     valueSummary
+                     Text("SAMPLE ARTWORK, VALUES & ODDS")
+-                        .font(.caption2).foregroundStyle(BoxzyTheme.muted)
++                        .font(.caption).foregroundStyle(BoxzyTheme.muted)
+ 
+                     ForEach(tiers) { tier in
+                         PrizeTierSection(
+@@ -46,7 +46,7 @@
+                         )
+                     }
+                 }
+-                .padding(.horizontal, 16)
++                .padding(.horizontal, 20)
+                 .padding(.top, 6)
+                 .padding(.bottom, 12)
+             }
+@@ -56,7 +56,7 @@
+                 Text("Buy now · \(selectedBox.price.usd)")
+             }
+             .font(.headline)
+-            .buttonStyle(BoxzyPrimaryButtonStyle(height: typeSize.isAccessibilitySize ? 76 : 48))
++            .buttonStyle(BoxzyPrimaryButtonStyle(height: 52))
+             .accessibilityIdentifier("details.buy")
+             .padding(.horizontal, 20)
+             .padding(.vertical, 8)
+@@ -93,7 +93,7 @@
+ 
+                 Button(action: { dismiss() }) {
+                     Image(systemName: "xmark")
+-                        .font(.body.weight(.semibold))
++                        .font(.system(size: 20, weight: .semibold))
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.surface.opacity(0.78), in: Circle())
+                 }
+@@ -103,13 +103,19 @@
+         }
+     }
+ 
+-    private var boxSelector: some View {
++    @ViewBuilder private var boxSelector: some View {
++        if typeSize.isAccessibilitySize {
++            ScrollView(.horizontal, showsIndicators: false) { boxOptions }
++        } else { boxOptions }
++    }
++    private var boxOptions: some View {
+         HStack(spacing: 8) {
+             ForEach(boxes) { box in
+                 Button {
+                     withAnimation(.snappy) { selectedBoxID = box.id }
+                 } label: {
+                     DetailBoxOption(box: box, isSelected: box.id == selectedBoxID)
++                        .frame(width: typeSize.isAccessibilitySize ? 190 : nil)
+                 }
+                 .buttonStyle(.plain)
+             }
+@@ -130,9 +136,9 @@
+         (typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 16)) : AnyLayout(HStackLayout(spacing: 0))) {
+             DetailValueCell(title: "MIN VALUE", value: selectedBox.minimumLabel)
+ 
+-            Rectangle()
+-                .fill(Color.white.opacity(0.12))
+-                .frame(width: 1, height: 46)
++            if !typeSize.isAccessibilitySize {
++                Rectangle().fill(Color.white.opacity(0.12)).frame(width: 1, height: 46)
++            }
+ 
+             DetailValueCell(title: "MAX VALUE", value: selectedBox.maximumLabel)
+         }
+@@ -174,14 +180,14 @@
+             Image(box.imageName)
+                 .resizable()
+                 .scaledToFit()
+-                .frame(height: 74)
++                .frame(height: 64)
+ 
+             Text(box.name.capitalized)
+-                .font(.system(size: 13, weight: .semibold))
++                .boxzyFont(13, weight: .semibold)
+                 .foregroundStyle(isSelected ? BoxzyTheme.blue : Color.primary.opacity(0.72))
+ 
+             Text(box.price.usd)
+-                .font(.system(size: 12, weight: .bold))
++                .boxzyFont(12, weight: .bold)
+         }
+         .frame(maxWidth: .infinity)
+         .padding(.vertical, 9)
+@@ -217,6 +223,7 @@
+ }
+ 
+ private struct PrizeTierSection: View {
++    @Environment(\.dynamicTypeSize) private var typeSize
+     let tier: PrizeTier
+     let isExpanded: Bool
+     let toggle: () -> Void
+@@ -225,12 +232,12 @@
+     var body: some View {
+         VStack(spacing: 12) {
+             Button(action: toggle) {
+-                HStack(spacing: 10) {
++                (typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))) {
+                     Text("\(tier.name)  \(tier.chance)")
+-                        .font(.system(size: 12, weight: .bold))
++                        .boxzyFont(12, weight: .bold)
+                         .foregroundStyle(tier.tint)
+                         .padding(.horizontal, 12)
+-                        .frame(height: 32)
++                        .padding(.vertical, 8).frame(minHeight: 32)
+                         .background(tier.tint.opacity(0.10), in: RoundedRectangle(cornerRadius: 10))
+                         .overlay {
+                             RoundedRectangle(cornerRadius: 10)
+@@ -238,13 +245,13 @@
+                         }
+ 
+                     Text(tier.valueRange)
+-                        .font(.system(size: 12))
++                        .boxzyFont(12)
+                         .foregroundStyle(BoxzyTheme.muted)
+ 
+                     Spacer(minLength: 4)
+ 
+                     Image(systemName: "chevron.down")
+-                        .font(.system(size: 12, weight: .bold))
++                        .boxzyFont(12, weight: .bold)
+                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.surface.opacity(0.82), in: Circle())
+@@ -255,7 +262,7 @@
+ 
+             if isExpanded {
+                 ScrollView(.horizontal, showsIndicators: false) {
+-                    LazyHStack(spacing: 10) {
++                    LazyHStack(alignment: .top, spacing: 12) {
+                         ForEach(tier.prizes) { prize in
+                             Button {
+                                 selectPrize(prize)
+@@ -295,10 +302,9 @@
+                 .foregroundStyle(tint)
+ 
+             Text(prize.name)
+-                .font(.system(size: 12, weight: .medium))
++                .boxzyFont(15, weight: .medium)
+                 .fixedSize(horizontal: false, vertical: true)
+-                .lineLimit(2)
+-                .minimumScaleFactor(0.82)
++                .lineLimit(nil)
+         }
+         .padding(11)
+         .frame(width: cardWidth)
+--- original/BoxzyApp/CollectionView.swift
++++ updated/BoxzyApp/CollectionView.swift
+@@ -2,6 +2,7 @@
+ import UIKit
+ 
+ struct CollectionView: View {
++    @Environment(\.dynamicTypeSize) private var typeSize
+     private enum Section: String, CaseIterable, Identifiable {
+         case unopened = "Unopened"
+         case vault = "Vault"
+@@ -125,13 +126,13 @@
+ 
+                         if badgeCount(for: item) > 0 {
+                             Text("\(badgeCount(for: item))")
+-                                .font(.system(size: 12, weight: .semibold))
++                                .boxzyFont(12, weight: .semibold)
+                                 .padding(.horizontal, 6)
+                                 .frame(height: 19)
+                                 .background(BoxzyTheme.gold.opacity(0.12), in: Capsule())
+                         }
+                     }
+-                    .font(.system(size: 14, weight: .semibold))
++                    .boxzyFont(14, weight: .semibold)
+                     .foregroundStyle(
+                         section == item
+                             ? BoxzyTheme.gold
+@@ -177,11 +178,11 @@
+     private func autoSaleNotice(_ message: String) -> some View {
+         HStack(spacing: 10) {
+             Image(systemName: "clock")
+-                .font(.system(size: 15, weight: .medium))
++                .boxzyFont(15, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.gold)
+ 
+             Text(message)
+-                .font(.system(size: 12.5))
++                .boxzyFont(12.5)
+                 .foregroundStyle(BoxzyTheme.muted)
+                 .lineLimit(1)
+                 .minimumScaleFactor(0.82)
+@@ -214,7 +215,7 @@
+                 )
+ 
+                 LazyVGrid(
+-                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
++                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2),
+                     spacing: 7
+                 ) {
+                     ForEach(unopenedBoxes) { item in
+@@ -248,7 +249,7 @@
+                 )
+ 
+                 LazyVGrid(
+-                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
++                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2),
+                     spacing: 7
+                 ) {
+                     ForEach(vaultItems) { item in
+@@ -332,7 +333,7 @@
+ 
+     private func reloadCollection() {
+         unopenedBoxes = UnopenedBoxStore.load()
+-        vaultItems = CollectionInventoryStore.loadVault()
++        vaultItems = ProcessInfo.processInfo.arguments.contains("-BoxzyEmptyCollection") ? [] : CollectionInventoryStore.loadVault()
+         shipments = CollectionInventoryStore.loadShipments()
+     }
+ }
+@@ -360,10 +361,10 @@
+     private func summaryCell(value: String, label: String) -> some View {
+         VStack(spacing: 3) {
+             Text(value)
+-                .font(.system(size: 18, weight: .bold))
++                .boxzyFont(18, weight: .bold)
+ 
+             Text(label)
+-                .font(.system(size: 9.5, weight: .medium))
++                .boxzyFont(12, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.muted)
+         }
+         .frame(maxWidth: .infinity)
+@@ -385,19 +386,19 @@
+             .frame(height: 100)
+ 
+             Text(item.prize.name)
+-                .font(.system(size: 14, weight: .medium))
++                .boxzyFont(15, weight: .medium)
+                 .foregroundStyle(.white)
+                 .lineLimit(3)
+-                .frame(height: 50, alignment: .topLeading)
++                .frame(minHeight: 50, alignment: .topLeading)
+                 .padding(.top, 5)
+ 
+             Text(item.prize.value.usd)
+-                .font(.system(size: 18, weight: .semibold))
++                .boxzyFont(18, weight: .semibold)
+                 .foregroundStyle(BoxzyTheme.blue)
+                 .padding(.top, 3)
+ 
+             Label(item.automaticSaleCountdown, systemImage: "clock")
+-                .font(.system(size: 12, weight: .medium))
++                .boxzyFont(12, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.muted)
+                 .lineLimit(1)
+                 .minimumScaleFactor(0.72)
+@@ -418,14 +419,14 @@
+     var body: some View {
+         VStack(alignment: .leading, spacing: 8) {
+             HStack { Spacer(minLength: 0); Text(updating ? "UPDATING" : (item.source == .purchased ? "PURCHASED" : "REWARD"))
+-                .font(.system(size: 10, weight: .bold)).foregroundStyle(BoxzyTheme.gold)
++                .boxzyFont(12, weight: .bold).foregroundStyle(BoxzyTheme.gold)
+                 .padding(5).overlay(RoundedRectangle(cornerRadius: 6).stroke(BoxzyTheme.gold.opacity(0.6))) }
+             Image(item.box.imageName).resizable().scaledToFit().frame(maxWidth: .infinity).frame(height: 130)
+             Text(item.box.name.capitalized + " Box").font(.headline)
+             Text(item.detailText).font(.caption).foregroundStyle(BoxzyTheme.muted).fixedSize(horizontal: false, vertical: true)
+             Divider()
+             Text(updating ? "New prizes on the way. Open once the update is complete." : "Ready to open")
+-                .font(.system(size: 12)).foregroundStyle(updating ? BoxzyTheme.muted : BoxzyTheme.gold)
++                .boxzyFont(12).foregroundStyle(updating ? BoxzyTheme.muted : BoxzyTheme.gold)
+                 .frame(minHeight: 64, alignment: .topLeading).fixedSize(horizontal: false, vertical: true)
+             Button("Open now", action: onOpen).buttonStyle(BoxzyPrimaryButtonStyle())
+                 .disabled(updating)
+@@ -446,7 +447,7 @@
+     var body: some View {
+         VStack(spacing: 14) {
+             Image(systemName: icon)
+-                .font(.system(size: 36, weight: .light))
++                .boxzyFont(36, weight: .light)
+                 .foregroundStyle(BoxzyTheme.muted)
+ 
+             Text(title)
+@@ -459,26 +460,13 @@
+                 .lineSpacing(3)
+                 .frame(maxWidth: 285)
+ 
+-            Button(action: action) {
+-                Text(buttonTitle)
+-                    .font(.system(size: 15, weight: .semibold))
+-                    .foregroundStyle(.white)
+-                    .padding(.horizontal, 24)
+-                    .frame(height: 46)
+-                    .background(Color.white.opacity(0.09), in: Capsule())
+-            }
+-            .buttonStyle(.plain)
+-            .padding(.top, 5)
++            Button(buttonTitle, action: action)
++                .buttonStyle(BoxzySecondaryButtonStyle())
++                .frame(maxWidth: 260)
++                .padding(.top, 5)
+         }
+         .frame(maxWidth: .infinity, maxHeight: .infinity)
+-        .background {
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.11), BoxzyTheme.blue.opacity(0.06), .clear],
+-                center: .center,
+-                startRadius: 5,
+-                endRadius: 210
+-            )
+-        }
++
+     }
+ }
+ 
+@@ -488,7 +476,7 @@
+     var body: some View {
+         VStack(alignment: .leading, spacing: 0) {
+             Text("SHIPMENT REQUESTED")
+-                .font(.caption2.weight(.bold))
++                .font(.caption.weight(.bold))
+                 .tracking(1.1)
+                 .foregroundStyle(BoxzyTheme.blue)
+                 .padding(.horizontal, 9)
+@@ -521,7 +509,7 @@
+ 
+             HStack(alignment: .top, spacing: 13) {
+                 Image(systemName: "clock")
+-                    .font(.system(size: 25, weight: .medium))
++                    .boxzyFont(25, weight: .medium)
+                     .foregroundStyle(BoxzyTheme.blue)
+                     .frame(width: 34)
+ 
+@@ -567,6 +555,8 @@
+     @State private var selectedAccountAddress: AccountAddress?
+     @State private var isPresentingAddressManagement = false
+     @State private var isShowingSellOffer = false
++    @State private var isPresentingShippingFunds = false
++    @AppStorage("boxzy.isAuthenticated") private var isAuthenticated = false
+     @State private var isSubmitting = false
+     @State private var toast: CollectionToast?
+ 
+@@ -611,6 +601,10 @@
+                     .zIndex(20)
+             }
+         }
++        .sheet(isPresented: $isPresentingShippingFunds) {
++            AddFundsFlowView(isAuthenticated: $isAuthenticated)
++                .presentationDetents([.large])
++        }
+         .interactiveDismissDisabled(isSubmitting)
+         .onAppear { reloadAddressBook() }
+         .onChange(of: screen) { _, newScreen in
+@@ -664,7 +658,7 @@
+                     .foregroundStyle(BoxzyTheme.muted)
+ 
+                 Text(item.prize.name)
+-                    .font(.system(size: 27, weight: .bold))
++                    .boxzyFont(27, weight: .bold)
+                     .fontWidth(.condensed)
+ 
+                 HStack {
+@@ -685,23 +679,14 @@
+                 Button("Sell for \((Double(item.prize.value) * 0.90).collectionCurrency)") {
+                     withAnimation(.snappy) { isShowingSellOffer = true }
+                 }
+-                .font(.headline)
++                .boxzyFont(16, weight: .semibold)
+                 .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 16))
+                 .padding(.top, 8)
+ 
+                 Button("Ship to Me") {
+                     withAnimation(.snappy) { screen = .shipping }
+                 }
+-                .font(.headline)
+-                .foregroundStyle(BoxzyTheme.goldLight)
+-                .frame(maxWidth: .infinity)
+-                .frame(height: 52)
+-                .background(BoxzyTheme.surface.opacity(0.72), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+-                .overlay {
+-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+-                        .stroke(BoxzyTheme.gold.opacity(0.72), lineWidth: 1.25)
+-                }
+-                .buttonStyle(.plain)
++                .buttonStyle(BoxzySecondaryButtonStyle())
+             }
+             .padding(.horizontal, 22)
+             .padding(.bottom, 28)
+@@ -740,17 +725,23 @@
+                     }.padding(18).collectionSurface(cornerRadius: 16, opacity: 0.7)
+                 }
+                 feeCard
+-                Text("Charged to your balance.").font(.footnote).foregroundStyle(BoxzyTheme.muted)
++                Text("Payment source: BOXZY balance").font(.footnote).foregroundStyle(BoxzyTheme.muted)
++                if balance < ShippingQuote.sample.total {
++                    Text("Add \((ShippingQuote.sample.total - balance).collectionCurrency) to cover shipping.")
++                        .boxzyFont(15).foregroundStyle(BoxzyTheme.muted)
++                }
+             }.padding(.horizontal, 22).padding(.bottom, 24)
+         }
+         .safeAreaInset(edge: .bottom, spacing: 0) {
+-            Button { submitShipment() } label: {
++            Button {
++                if balance < ShippingQuote.sample.total { isPresentingShippingFunds = true } else { submitShipment() }
++            } label: {
+                 HStack(spacing: 8) {
+                     if isSubmitting { ProgressView().tint(.black) }
+-                    Text(isSubmitting ? "Processing…" : "Pay $12.00 and Ship")
+-                }.font(.headline)
+-            }
+-            .buttonStyle(BoxzyPrimaryButtonStyle(height: 56, cornerRadius: 16))
++                    Text(isSubmitting ? "Processing…" : (balance < ShippingQuote.sample.total ? "Add funds to ship" : "Pay $12.00 and Ship"))
++                }.boxzyFont(16, weight: .semibold)
++            }
++            .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 16))
+             .disabled(isSubmitting || selectedAccountAddress == nil)
+             .padding(.horizontal, 22).padding(.vertical, 12).background(BoxzyTheme.background)
+         }
+--- original/BoxzyApp/ContentView.swift
++++ updated/BoxzyApp/ContentView.swift
+@@ -10,6 +10,8 @@
+         let initialSelection: BoxzyTab
+         if arguments.contains("-BoxzyAccount") {
+             initialSelection = .account
++        } else if arguments.contains("-BoxzyRankings") {
++            initialSelection = .rankings
+         } else if arguments.contains("-BoxzyCollection") {
+             initialSelection = .collection
+         } else {
+@@ -72,7 +74,7 @@
+                             restrictedDestination = nil
+                         },
+                         headline: "Sign in to continue",
+-                        supportingMessage: "Sign in to continue your BOXXY experience.",
++                        supportingMessage: "Sign in to continue your BOXZY experience.",
+                         close: {
+                             restrictedDestination = nil
+                         }
+@@ -135,7 +137,7 @@
+                         .frame(width: 24, height: 24)
+ 
+                         Text(tab.rawValue)
+-                            .font(.system(size: 11, weight: selection == tab ? .semibold : .medium))
++                            .boxzyFont(12, weight: selection == tab ? .semibold : .medium)
+                             .lineLimit(1)
+                     }
+                     .foregroundStyle(selection == tab ? BoxzyTheme.blue : BoxzyTheme.muted)
+@@ -265,25 +267,7 @@
+             }
+ 
+         case .account:
+-            return Path { path in
+-                path.move(to: CGPoint(x: 4, y: 7))
+-                path.addLine(to: CGPoint(x: 12, y: 3))
+-                path.addLine(to: CGPoint(x: 20, y: 7))
+-                path.addLine(to: CGPoint(x: 20, y: 17))
+-                path.addLine(to: CGPoint(x: 12, y: 21))
+-                path.addLine(to: CGPoint(x: 4, y: 17))
+-                path.closeSubpath()
+-                path.move(to: CGPoint(x: 4, y: 7))
+-                path.addLine(to: CGPoint(x: 12, y: 11))
+-                path.addLine(to: CGPoint(x: 20, y: 7))
+-                path.move(to: CGPoint(x: 12, y: 11))
+-                path.addLine(to: CGPoint(x: 12, y: 21))
+-                path.move(to: CGPoint(x: 12, y: 13.3))
+-                path.addLine(to: CGPoint(x: 14.3, y: 14.6))
+-                path.addLine(to: CGPoint(x: 12, y: 15.9))
+-                path.addLine(to: CGPoint(x: 9.7, y: 14.6))
+-                path.closeSubpath()
+-            }
++            return AccountGlyph().path(in: CGRect(x: 0, y: 0, width: 24, height: 24))
+         }
+     }
+ }
+@@ -295,3 +279,19 @@
+             .previewDisplayName("iPhone 17 Pro · 402 × 874")
+     }
+ }
++
++// Shared account silhouette: same geometry for the guest state and tab bar.
++struct AccountGlyph: Shape {
++    func path(in rect: CGRect) -> Path {
++        let glyph = Path { path in
++            path.addEllipse(in: CGRect(x: 8, y: 2.5, width: 8, height: 8))
++            path.move(to: CGPoint(x: 4, y: 21))
++            path.addCurve(to: CGPoint(x: 12, y: 13.5), control1: CGPoint(x: 4, y: 16.5), control2: CGPoint(x: 7, y: 13.5))
++            path.addCurve(to: CGPoint(x: 20, y: 21), control1: CGPoint(x: 17, y: 13.5), control2: CGPoint(x: 20, y: 16.5))
++            path.closeSubpath()
++        }
++        let scale = min(rect.width, rect.height) / 24
++        return glyph.applying(CGAffineTransform(scaleX: scale, y: scale))
++            .offsetBy(dx: rect.midX - 12 * scale, dy: rect.midY - 12 * scale)
++    }
++}
+--- original/BoxzyApp/GuestAccountView.swift
++++ updated/BoxzyApp/GuestAccountView.swift
+@@ -5,6 +5,15 @@
+     @Binding var isAuthenticated: Bool
+ 
+     var body: some View {
++#if DEBUG
++        if ProcessInfo.processInfo.arguments.contains("-BoxzyGuestPreview") {
++            GuestAccountView(isAuthenticated: .constant(false))
++        } else { accountBody }
++#else
++        accountBody
++#endif
++    }
++    @ViewBuilder private var accountBody: some View {
+         if isAuthenticated {
+             SignedInAccountView(isAuthenticated: $isAuthenticated)
+         } else {
+@@ -32,13 +41,6 @@
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+ 
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.13), BoxzyTheme.blue.opacity(0.07), .clear],
+-                center: UnitPoint(x: 0.52, y: 0.40),
+-                startRadius: 16,
+-                endRadius: 300
+-            )
+-            .ignoresSafeArea()
+ 
+             GeometryReader { geometry in
+                 ScrollView(.vertical, showsIndicators: false) {
+@@ -49,17 +51,20 @@
+                         }
+ 
+                         Text("Account")
+-                            .font(.system(size: 30, weight: .bold))
++                            .boxzyFont(30, weight: .bold)
+                             .frame(maxWidth: .infinity, alignment: .leading)
+                             .padding(.top, 32)
+ 
+                         Spacer(minLength: 0)
+ 
+-                        BoxzyBoxMark()
++                        AccountGlyph()
++                            .stroke(BoxzyTheme.gold, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
++                            .frame(width: 64, height: 64)
+                             .frame(width: 118, height: 118)
++                            .accessibilityHidden(true)
+ 
+                         Text("Sign in to continue.")
+-                            .font(.system(size: 27, weight: .bold))
++                            .boxzyFont(27, weight: .bold)
+                             .padding(.top, 31)
+ 
+                         Text("Manage your balance, collection,\nshipping, and rewards.")
+@@ -92,7 +97,7 @@
+                         } label: {
+                             HStack(spacing: 14) {
+                                 Image(systemName: "headphones")
+-                                    .font(.system(size: 21, weight: .medium))
++                                    .boxzyFont(21, weight: .medium)
+                                     .foregroundStyle(BoxzyTheme.gold)
+                                     .frame(width: 28)
+ 
+@@ -103,7 +108,7 @@
+                                 Spacer()
+ 
+                                 Image(systemName: "chevron.right")
+-                                    .font(.system(size: 15, weight: .semibold))
++                                    .boxzyFont(15, weight: .semibold)
+                                     .foregroundStyle(Color(red: 0.55, green: 0.54, blue: 0.53))
+                             }
+                             .padding(.horizontal, 20)
+@@ -142,7 +147,7 @@
+                     }
+                 },
+                 headline: "Sign in to continue",
+-                supportingMessage: "Sign in to continue your BOXXY experience.",
++                supportingMessage: "Sign in to continue your BOXZY experience.",
+                 close: {
+                     continuesToAddFundsAfterSignIn = false
+                     isPresentingSignIn = false
+@@ -247,13 +252,6 @@
+     var body: some View {
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.14), BoxzyTheme.blue.opacity(0.07), .clear],
+-                center: UnitPoint(x: 0.5, y: 0.08),
+-                startRadius: 0,
+-                endRadius: 260
+-            )
+-            .ignoresSafeArea()
+ 
+             VStack(spacing: 0) {
+                 Capsule()
+@@ -263,14 +261,14 @@
+ 
+                 HStack {
+                     Text("Customer Support")
+-                        .font(.system(size: 23, weight: .bold))
++                        .boxzyFont(23, weight: .bold)
+                         .foregroundStyle(.white)
+ 
+                     Spacer()
+ 
+                     Button { dismiss() } label: {
+                         Image(systemName: "xmark")
+-                            .font(.system(size: 17, weight: .semibold))
++                            .boxzyFont(17, weight: .semibold)
+                             .foregroundStyle(.white)
+                             .frame(width: 44, height: 44)
+                             .background(BoxzyTheme.surface, in: Circle())
+@@ -282,7 +280,7 @@
+                 .padding(.top, 10)
+ 
+                 Image(systemName: "headphones")
+-                    .font(.system(size: 27, weight: .medium))
++                    .boxzyFont(27, weight: .medium)
+                     .foregroundStyle(BoxzyTheme.blue)
+                     .frame(width: 58, height: 58)
+                     .background(BoxzyTheme.blue.opacity(0.12), in: Circle())
+@@ -290,7 +288,7 @@
+                     .padding(.top, 10)
+ 
+                 Text(supportingCopy)
+-                    .font(.system(size: 14))
++                    .boxzyFont(14)
+                     .foregroundStyle(BoxzyTheme.muted)
+                     .multilineTextAlignment(.center)
+                     .lineSpacing(3)
+@@ -299,25 +297,25 @@
+ 
+                 HStack(spacing: 12) {
+                     Image(systemName: "envelope.fill")
+-                        .font(.system(size: 15, weight: .semibold))
++                        .boxzyFont(15, weight: .semibold)
+                         .foregroundStyle(BoxzyTheme.blue)
+                         .frame(width: 38, height: 38)
+                         .background(BoxzyTheme.blue.opacity(0.12), in: Circle())
+ 
+                     VStack(alignment: .leading, spacing: 3) {
+                         Text("EMAIL SUPPORT")
+-                            .font(.system(size: 10, weight: .bold))
++                            .boxzyFont(12, weight: .bold)
+                             .tracking(1.3)
+                             .foregroundStyle(BoxzyTheme.muted)
+                         Text("support@boxzy.com")
+-                            .font(.system(size: 15, weight: .semibold))
++                            .boxzyFont(15, weight: .semibold)
+                             .foregroundStyle(BoxzyTheme.gold)
+                     }
+ 
+                     Spacer()
+ 
+                     Image(systemName: "arrow.up.right")
+-                        .font(.system(size: 13, weight: .semibold))
++                        .boxzyFont(13, weight: .semibold)
+                         .foregroundStyle(BoxzyTheme.blue)
+                 }
+                 .padding(.horizontal, 14)
+@@ -333,14 +331,14 @@
+                     openSupportEmail()
+                 } label: {
+                     Label("EMAIL SUPPORT", systemImage: "paperplane.fill")
+-                        .font(.system(size: 15, weight: .bold))
++                        .boxzyFont(15, weight: .bold)
+                         .tracking(0.6)
+                 }
+                 .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 15))
+                 .padding(.top, 14)
+ 
+                 Text("Typical response time: within 24 hours")
+-                    .font(.system(size: 11))
++                    .boxzyFont(12)
+                     .foregroundStyle(BoxzyTheme.muted.opacity(0.72))
+                     .padding(.top, 10)
+                     .padding(.bottom, 12)
+@@ -422,7 +420,7 @@
+                 HelpArticle(
+                     id: "box-how-it-works",
+                     question: "How do mystery boxes work?",
+-                    summary: "Before buying, tap a box to see its pull odds and prize value range. After purchase, swipe to open the box and reveal your item."
++                    summary: "Before buying, tap a box to see its pull odds and prize value range. After purchase, swipe to choose a box number, then tap Open Box to reveal your prize. Use Open later to keep it in Collection → Unopened."
+                 ),
+                 HelpArticle(
+                     id: "box-odds",
+@@ -512,15 +510,12 @@
+         ),
+         HelpTopic(
+             id: "account",
+-            title: "Account & Referrals",
+-            subtitle: "Profile, support, and referral rewards.",
++            title: "Account",
++            subtitle: "Profile settings and customer support.",
+             icon: "person",
+             articles: [
+                 HelpArticle(id: "username", question: "How do I change my username?", summary: "Go to Account and tap Edit beside your profile to update your username."),
+-                HelpArticle(id: "contact", question: "How do I contact support?", summary: "Open Account, choose Customer Support, then copy our support email address."),
+-                HelpArticle(id: "referral-how", question: "How do referral rewards work?", summary: "Share your referral code. Your friend receives $5 in Credit after signing up with it, and you receive $5 in Credit after their first box purchase."),
+-                HelpArticle(id: "referral-when", question: "When will my referral reward arrive?", summary: "Your $5 Credit is added automatically after your referred friend completes their first box purchase."),
+-                HelpArticle(id: "referral-change", question: "Can I change my referral code?", summary: "Referral codes are assigned automatically and cannot be changed in the app. Contact support if you need help with your code.")
++                HelpArticle(id: "contact", question: "How do I contact support?", summary: "Open Account, choose Customer Support, then copy our support email address.")
+             ]
+         )
+     ]
+@@ -529,6 +524,7 @@
+ struct CustomerSupportSheet: View {
+     @Environment(\.dismiss) private var dismiss
+     @State private var searchText = ""
++    @State private var previewPath = NavigationPath()
+     @State private var showsCopiedToast = false
+     let transactionID: String?
+ 
+@@ -537,7 +533,7 @@
+     }
+ 
+     var body: some View {
+-        NavigationStack {
++        NavigationStack(path: $previewPath) {
+             ZStack {
+                 BoxzyTheme.background.ignoresSafeArea()
+ 
+@@ -565,6 +561,15 @@
+                 HelpArticleScreen(article: article, topicTitle: topicTitle(for: article))
+             }
+             .toolbar(.hidden, for: .navigationBar)
++        }
++        .onAppear {
++#if DEBUG
++            let args = ProcessInfo.processInfo.arguments
++            if previewPath.isEmpty && (args.contains("-BoxzySupportTopic") || args.contains("-BoxzySupportArticle")) {
++                previewPath.append(HelpContent.topics[0])
++                if args.contains("-BoxzySupportArticle") { previewPath.append(HelpContent.topics[0].articles[0]) }
++            }
++#endif
+         }
+         .preferredColorScheme(.dark)
+         .overlay(alignment: .top) {
+@@ -585,10 +590,10 @@
+     private var searchField: some View {
+         HStack(spacing: 13) {
+             Image(systemName: "magnifyingglass")
+-                .font(.system(size: 20, weight: .medium))
++                .boxzyFont(20, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.muted)
+             TextField("Search help articles", text: $searchText)
+-                .font(.system(size: 16))
++                .boxzyFont(16)
+                 .foregroundStyle(.white)
+                 .textInputAutocapitalization(.never)
+                 .autocorrectionDisabled()
+@@ -606,7 +611,7 @@
+                 NavigationLink(value: topic) {
+                     HStack(spacing: 14) {
+                         Image(systemName: topic.icon)
+-                            .font(.system(size: 20, weight: .medium))
++                            .boxzyFont(20, weight: .medium)
+                             .foregroundStyle(BoxzyTheme.gold)
+                             .frame(width: 44, height: 44)
+                             .background(BoxzyTheme.background.opacity(0.65), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+@@ -614,16 +619,16 @@
+ 
+                         VStack(alignment: .leading, spacing: 3) {
+                             Text(topic.title)
+-                                .font(.system(size: 16, weight: .semibold))
++                                .boxzyFont(16, weight: .semibold)
+                                 .foregroundStyle(.white)
+                             Text(topic.subtitle)
+-                                .font(.system(size: 13))
++                                .boxzyFont(13)
+                                 .lineLimit(2)
+                                 .foregroundStyle(BoxzyTheme.muted)
+                         }
+                         Spacer()
+                         Image(systemName: "chevron.right")
+-                            .font(.system(size: 14, weight: .bold))
++                            .boxzyFont(14, weight: .bold)
+                             .foregroundStyle(BoxzyTheme.gold)
+                     }
+                     .padding(.horizontal, 13)
+@@ -644,7 +649,7 @@
+             sectionLabel("SEARCH RESULTS")
+             if results.isEmpty {
+                 Text("No matching answers")
+-                    .font(.system(size: 16))
++                    .boxzyFont(16)
+                     .foregroundStyle(BoxzyTheme.muted)
+                     .frame(maxWidth: .infinity, alignment: .center)
+                     .padding(.top, 44)
+@@ -664,12 +669,12 @@
+             sectionLabel("STILL NEED HELP?")
+             HStack {
+                 Text("support@boxzy.com")
+-                    .font(.system(size: 15, weight: .medium))
++                    .boxzyFont(15, weight: .medium)
+                     .foregroundStyle(.white)
+                 Spacer()
+                 Button(action: copySupportEmail) {
+                     Label("Copy", systemImage: "doc.on.doc")
+-                        .font(.system(size: 14, weight: .medium))
++                        .boxzyFont(14, weight: .medium)
+                         .foregroundStyle(BoxzyTheme.gold)
+                 }
+                 .buttonStyle(.plain)
+@@ -710,11 +715,11 @@
+                     helpHeader(title: "Help Center", backAction: { dismiss() })
+ 
+                     Text(topic.title)
+-                        .font(.system(size: 30, weight: .bold))
++                        .boxzyFont(30, weight: .bold)
+                         .foregroundStyle(.white)
+                         .padding(.top, 26)
+                     Text(topic.subtitle)
+-                        .font(.system(size: 16))
++                        .boxzyFont(16)
+                         .foregroundStyle(BoxzyTheme.muted)
+                         .padding(.top, 7)
+ 
+@@ -726,12 +731,12 @@
+                             NavigationLink(value: article) {
+                                 HStack(spacing: 14) {
+                                     Text(article.question)
+-                                        .font(.system(size: 15, weight: .medium))
++                                        .boxzyFont(15, weight: .medium)
+                                         .foregroundStyle(.white)
+                                         .multilineTextAlignment(.leading)
+                                     Spacer(minLength: 8)
+                                     Image(systemName: "chevron.right")
+-                                        .font(.system(size: 14, weight: .bold))
++                                        .boxzyFont(14, weight: .bold)
+                                         .foregroundStyle(BoxzyTheme.gold)
+                                 }
+                                 .padding(.horizontal, 14)
+@@ -765,19 +770,19 @@
+                     helpHeader(title: "Help Center", backAction: { dismiss() })
+ 
+                     Text(topicTitle.uppercased())
+-                        .font(.system(size: 12, weight: .semibold))
++                        .boxzyFont(12, weight: .semibold)
+                         .tracking(1.6)
+                         .foregroundStyle(BoxzyTheme.gold)
+                         .padding(.top, 28)
+ 
+                     Text(article.question)
+-                        .font(.system(size: 31, weight: .bold))
++                        .boxzyFont(31, weight: .bold)
+                         .foregroundStyle(.white)
+                         .fixedSize(horizontal: false, vertical: true)
+                         .padding(.top, 14)
+ 
+                     Text(article.summary)
+-                        .font(.system(size: 16))
++                        .boxzyFont(16)
+                         .foregroundStyle(BoxzyTheme.muted)
+                         .lineSpacing(5)
+                         .fixedSize(horizontal: false, vertical: true)
+@@ -788,14 +793,14 @@
+                             ForEach(Array(article.sections.enumerated()), id: \.element.id) { index, section in
+                                 VStack(alignment: .leading, spacing: 9) {
+                                     Text(section.label)
+-                                        .font(.system(size: 12, weight: .semibold))
++                                        .boxzyFont(12, weight: .semibold)
+                                         .tracking(1.2)
+                                         .foregroundStyle(BoxzyTheme.gold)
+                                     Text(section.title)
+-                                        .font(.system(size: 19, weight: .semibold))
++                                        .boxzyFont(19, weight: .semibold)
+                                         .foregroundStyle(.white)
+                                     Text(section.body)
+-                                        .font(.system(size: 15))
++                                        .boxzyFont(15)
+                                         .foregroundStyle(BoxzyTheme.muted)
+                                         .lineSpacing(4)
+                                 }
+@@ -823,12 +828,12 @@
+ private func helpHeader(title: String, backAction: @escaping () -> Void) -> some View {
+     ZStack {
+         Text(title)
+-            .font(.system(size: 17, weight: .semibold))
++            .boxzyFont(17, weight: .semibold)
+             .foregroundStyle(.white)
+         HStack {
+             Button(action: backAction) {
+                 Image(systemName: "chevron.left")
+-                    .font(.system(size: 18, weight: .semibold))
++                    .boxzyFont(18, weight: .semibold)
+                     .foregroundStyle(.white)
+                     .frame(width: 44, height: 44)
+                     .background(BoxzyTheme.surface.opacity(0.9), in: Circle())
+@@ -844,7 +849,7 @@
+ 
+ private func sectionLabel(_ title: String) -> some View {
+     Text(title)
+-        .font(.system(size: 12, weight: .semibold))
++        .boxzyFont(12, weight: .semibold)
+         .tracking(1.6)
+         .foregroundStyle(BoxzyTheme.gold)
+ }
+@@ -852,12 +857,12 @@
+ private func questionRow(title: String) -> some View {
+     HStack(spacing: 12) {
+         Text(title)
+-            .font(.system(size: 15, weight: .medium))
++            .boxzyFont(15, weight: .medium)
+             .foregroundStyle(.white)
+             .multilineTextAlignment(.leading)
+         Spacer(minLength: 8)
+         Image(systemName: "chevron.right")
+-            .font(.system(size: 14, weight: .bold))
++            .boxzyFont(14, weight: .bold)
+             .foregroundStyle(BoxzyTheme.gold)
+     }
+     .padding(.horizontal, 16)
+--- original/BoxzyApp/HomeView.swift
++++ updated/BoxzyApp/HomeView.swift
+@@ -33,7 +33,7 @@
+             GeometryReader { geometry in
+                 // The navigation container overlays the custom bottom bar.
+                 // Give artwork the remaining height instead of scrolling the page.
+-                let cardHeight = 174.0
++                let cardHeight = typeSize.isAccessibilitySize ? 260.0 : 180.0
+                 VStack(spacing: 0) {
+                     BoxzyHeaderView(balance: balance) {
+                         if isAuthenticated {
+@@ -91,7 +91,7 @@
+                     }
+                 },
+                 headline: "Sign in to continue",
+-                supportingMessage: "Sign in to continue your BOXXY experience.",
++                supportingMessage: "Sign in to continue your BOXZY experience.",
+                 close: {
+                     isPresentingAddFundsSignIn = false
+                 }
+@@ -149,7 +149,7 @@
+ 
+     private var sectionTitle: some View {
+         Text("Choose from 4 boxes.")
+-            .font(.system(size: 27, weight: .bold, design: .default))
++            .boxzyFont(27, weight: .bold, design: .default)
+             .fontWidth(.condensed)
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .frame(height: 34)
+@@ -172,9 +172,9 @@
+                     HStack(spacing: 5) {
+                         Text("View all")
+                         Image(systemName: "chevron.right")
+-                            .font(.system(size: 12, weight: .semibold))
+-                    }
+-                    .font(.system(size: 15, weight: .regular))
++                            .boxzyFont(12, weight: .semibold)
++                    }
++                    .boxzyFont(15, weight: .regular)
+                     .foregroundStyle(BoxzyTheme.blue)
+                     .frame(height: 44)
+                     .contentShape(Rectangle())
+@@ -208,21 +208,23 @@
+ 
+ struct BoxzyPrimaryButtonStyle: ButtonStyle {
+     @Environment(\.isEnabled) private var isEnabled
+-    var height: CGFloat = 44
++    var height: CGFloat = 52
+     var cornerRadius: CGFloat = 15
+ 
+     func makeBody(configuration: Configuration) -> some View {
+         configuration.label
++            .boxzyFont(16, weight: .semibold)
++            .padding(.horizontal, 12).padding(.vertical, 12)
+             .foregroundStyle(isEnabled ? BoxzyTheme.background : Color(white: 0.65))
+             .frame(maxWidth: .infinity)
+-            .frame(height: height)
++            .frame(minHeight: height)
+             .background {
+                 if isEnabled { BoxzyTheme.primaryGradient } else { Color(white: 0.20) }
+             }
+             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+             .overlay {
+                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-                    .stroke(BoxzyTheme.cyan.opacity(0.82), lineWidth: 0.75)
++                    .stroke(isEnabled ? Color.clear : BoxzyTheme.stroke, lineWidth: 0.75)
+             }
+             
+             .scaleEffect(configuration.isPressed ? 0.985 : 1)
+@@ -242,7 +244,7 @@
+                 .resizable()
+                 .scaledToFit()
+                 .frame(width: 134, height: 36, alignment: .leading)
+-                .accessibilityLabel("BOXXY")
++                .accessibilityLabel("BOXZY")
+ 
+             Spacer()
+ 
+@@ -254,17 +256,18 @@
+                         .accessibilityLabel("Loading balance")
+                 } else {
+                     Text(verbatim: String(format: "$%.2f", balance))
+-                        .font(.system(size: 15, weight: .semibold))
++                        .boxzyFont(15, weight: .semibold)
+                         .lineLimit(1)
+                         .minimumScaleFactor(0.82)
+                 }
+ 
+                 Button(action: addFunds) {
+                     Image(systemName: "plus")
+-                        .font(.system(size: 18, weight: .medium))
++                        .boxzyFont(18, weight: .medium)
+                         .foregroundStyle(.white)
+-                        .frame(width: 30, height: 30)
+-                        .background(BoxzyTheme.blue, in: Circle())
++                        .frame(width: 34, height: 34)
++                        .background(BoxzyTheme.gold, in: Circle())
++                        .frame(width: 44, height: 44)
+                         .contentShape(Circle())
+                 }
+                 .buttonStyle(.plain)
+@@ -272,7 +275,7 @@
+             }
+             .padding(.leading, 11)
+             .padding(.trailing, 3)
+-            .frame(width: 116, height: 36)
++            .frame(minWidth: 130, minHeight: 44)
+             .background {
+                 Capsule()
+                     .fill(
+@@ -287,7 +290,7 @@
+                     )
+             }
+         }
+-        .frame(height: 38)
++        .frame(minHeight: 44)
+     }
+ }
+ 
+@@ -299,7 +302,7 @@
+                 .frame(width: 7, height: 7)
+ 
+             Text("LIVE PULLS")
+-                .font(.system(size: 12, weight: .semibold))
++                .boxzyFont(12, weight: .semibold)
+                 .lineLimit(1)
+ 
+             Image("prize-legendary-pack")
+@@ -309,7 +312,7 @@
+                 .clipShape(RoundedRectangle(cornerRadius: 3))
+ 
+             Text("PikaChase22 pulled Legendary Treasures")
+-                .font(.system(size: 11, weight: .regular))
++                .boxzyFont(13, weight: .regular)
+                 .foregroundStyle(.white.opacity(0.9))
+                 .lineLimit(1)
+                 .layoutPriority(-1)
+@@ -317,7 +320,7 @@
+             Spacer(minLength: 0)
+ 
+             Text("$89")
+-                .font(.system(size: 13, weight: .semibold))
++                .boxzyFont(13, weight: .semibold)
+                 .foregroundStyle(BoxzyTheme.blue)
+         }
+         .padding(.horizontal, 9)
+@@ -406,12 +409,12 @@
+                     
+ 
+                 Text(box.name)
+-                    .font(.system(size: 13, weight: .bold))
++                    .boxzyFont(13, weight: .bold)
+                     .tracking(1.1)
+                     .foregroundStyle(BoxzyTheme.gold)
+ 
+                 Text(box.price.usd)
+-                    .font(.system(size: 20, weight: .bold))
++                    .boxzyFont(20, weight: .bold)
+                     .foregroundStyle(.white)
+             }
+             .frame(width: 194, height: height)
+@@ -530,12 +533,12 @@
+                 .frame(height: max(38, height - 70))
+ 
+             Text(prize.shortName)
+-                .font(.system(size: 13, weight: .medium))
++                .boxzyFont(15, weight: .medium)
+                 .lineLimit(2, reservesSpace: true)
+                 .fixedSize(horizontal: false, vertical: true)
+ 
+             Text(prize.value.usd)
+-                .font(.system(size: 17, weight: .semibold))
++                .boxzyFont(17, weight: .semibold)
+                 .foregroundStyle(BoxzyTheme.blue)
+         }
+         .padding(8)
+@@ -576,15 +579,15 @@
+             .frame(height: 28)
+ 
+             Button(action: action) {
+-                Text("BUY NOW · \(box.price.usd)")
+-                    .font(.system(size: 18, weight: .semibold))
++                Text("Buy now · \(box.price.usd)")
++                    .boxzyFont(16, weight: .semibold)
+                     .frame(maxWidth: .infinity)
+             }
+-            .buttonStyle(BoxzyPrimaryButtonStyle(height: 46, cornerRadius: 14))
++            .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 14))
+             .accessibilityIdentifier("home.buy")
+         }
+         .padding(8)
+-        .frame(height: 98)
++        .frame(minHeight: 104)
+         .background {
+             RoundedRectangle(cornerRadius: 18, style: .continuous)
+                 .fill(
+@@ -607,10 +610,10 @@
+     private func valueCell(title: String, value: String) -> some View {
+         HStack(spacing: 5) {
+             Text(title)
+-                .font(.system(size: 10, weight: .medium))
++                .boxzyFont(12, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.muted)
+             Text(value)
+-                .font(.system(size: 16, weight: .bold))
++                .boxzyFont(16, weight: .bold)
+                 .monospacedDigit()
+         }
+         .lineLimit(1)
+--- original/BoxzyApp/LeaderboardView.swift
++++ updated/BoxzyApp/LeaderboardView.swift
+@@ -22,14 +22,6 @@
+     var body: some View {
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+-            RadialGradient(
+-                colors: [BoxzyTheme.goldDeep.opacity(0.08), .clear],
+-                center: UnitPoint(x: 0.52, y: 0.20),
+-                startRadius: 8,
+-                endRadius: 330
+-            )
+-            .ignoresSafeArea()
+-
+             ScrollView(.vertical, showsIndicators: false) {
+                 VStack(spacing: 0) {
+                     header
+@@ -39,7 +31,7 @@
+                     MyRankCard(entry: snapshot.me, openBoxes: openBoxes).padding(.top, 10)
+ 
+                     Text("LEADERBOARD")
+-                        .font(.caption2.weight(.semibold))
++                        .font(.caption.weight(.semibold))
+                         .tracking(2)
+                         .foregroundStyle(BoxzyTheme.gold)
+                         .frame(maxWidth: .infinity, alignment: .leading)
+@@ -76,29 +68,29 @@
+     }
+ 
+     private var header: some View {
+-        HStack(spacing: 9) {
+-            Text("Rankings").font(.system(size: 31, weight: .bold))
+-            Button { showsRules = true } label: {
+-                Text("!")
+-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+-                    .foregroundStyle(BoxzyTheme.goldLight)
+-                    .frame(width: 24, height: 24)
+-                    .background(BoxzyTheme.gold.opacity(0.08), in: Circle())
+-                    .overlay { Circle().stroke(BoxzyTheme.gold.opacity(0.85), lineWidth: 1) }
+-            }
+-            .buttonStyle(.plain)
+-            .accessibilityLabel("How rankings work")
++        HStack {
++            Text("Rankings").boxzyFont(28, weight: .bold)
+             Spacer()
++            Button("Rules") { showsRules = true }
++                .boxzyFont(16).foregroundStyle(BoxzyTheme.gold)
++                .frame(minWidth: 44, minHeight: 44).buttonStyle(.plain)
++                .accessibilityLabel("How rankings work")
+         }
+     }
+ 
+     private var periodPicker: some View {
+-        Picker("Ranking period", selection: $period) {
+-            ForEach(Period.allCases) { Text($0.rawValue).tag($0) }
+-        }
+-        .pickerStyle(.segmented)
+-        .tint(BoxzyTheme.gold)
+-        .accessibilityLabel("Ranking period")
++        HStack(spacing: 4) {
++            ForEach(Period.allCases) { option in
++                Button { period = option } label: {
++                    Text(option.rawValue).boxzyFont(15, weight: .semibold)
++                        .frame(maxWidth: .infinity, minHeight: 44)
++                        .foregroundStyle(period == option ? BoxzyTheme.background : BoxzyTheme.muted)
++                        .background(period == option ? BoxzyTheme.gold : Color.clear, in: RoundedRectangle(cornerRadius: 10))
++                }.buttonStyle(.plain)
++                .accessibilityAddTraits(period == option ? .isSelected : [])
++            }
++        }.padding(4).background(BoxzyTheme.surface, in: RoundedRectangle(cornerRadius: 14))
++
+     }
+ 
+     @ViewBuilder private var periodStatus: some View {
+@@ -176,11 +168,11 @@
+ 
+             HStack(alignment: .center) {
+                 Text("How Rankings Work")
+-                    .font(.system(size: 24, weight: .bold))
++                    .boxzyFont(24, weight: .bold)
+                 Spacer()
+                 Button { dismiss() } label: {
+                     Image(systemName: "xmark")
+-                        .font(.system(size: 17, weight: .semibold))
++                        .boxzyFont(17, weight: .semibold)
+                         .foregroundStyle(.white)
+                         .frame(width: 44, height: 44)
+                         .background(Color.white.opacity(0.07), in: Circle())
+@@ -237,7 +229,7 @@
+                 ForEach(rules) { rule in
+                     VStack(spacing: 4) {
+                         Text(rule.place)
+-                            .font(.caption2.weight(.bold))
++                            .font(.caption.weight(.bold))
+                             .foregroundStyle(BoxzyTheme.goldLight)
+                         Image(rule.imageName)
+                             .resizable()
+@@ -299,7 +291,7 @@
+ 
+     private func sheetSectionTitle(_ text: String) -> some View {
+         Text(text)
+-            .font(.caption2.weight(.bold))
++            .font(.caption.weight(.bold))
+             .tracking(1.7)
+             .foregroundStyle(BoxzyTheme.goldLight)
+             .frame(maxWidth: .infinity, alignment: .leading)
+@@ -404,11 +396,11 @@
+                     .stroke(BoxzyTheme.background.opacity(0.65), lineWidth: 1)
+ 
+                 Text("1")
+-                    .font(.system(size: 30, weight: .black, design: .rounded))
++                    .boxzyFont(30, weight: .black, design: .rounded)
+                     .foregroundStyle(BoxzyTheme.background)
+ 
+                 Image(systemName: "crown.fill")
+-                    .font(.system(size: 18, weight: .bold))
++                    .boxzyFont(18, weight: .bold)
+                     .foregroundStyle(BoxzyTheme.goldLight)
+                     .offset(y: -50)
+ 
+@@ -440,7 +432,7 @@
+                     .stroke(Color.white.opacity(0.25), lineWidth: 0.7)
+ 
+                 Text("\(rank)")
+-                    .font(.system(size: 24, weight: .black, design: .rounded))
++                    .boxzyFont(24, weight: .black, design: .rounded)
+                     .foregroundStyle(.white.opacity(0.92))
+                     .offset(y: -3)
+             }
+@@ -530,6 +522,7 @@
+     let openBoxes: () -> Void
+ 
+     var body: some View {
++        VStack(alignment: .leading, spacing: 12) {
+         HStack(spacing: 12) {
+             Text("ME")
+                 .font(.headline.weight(.bold))
+@@ -552,24 +545,26 @@
+                 }
+             }
+             Spacer(minLength: 3)
++        }
+             Button(action: openBoxes) {
+                 HStack(spacing: 5) {
+                     Text("Open more boxes")
+                     Image(systemName: "arrow.right")
+                 }
+-                .font(.caption.weight(.medium))
+-            }
++                .boxzyFont(16, weight: .medium)
++            }
++            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+             .buttonStyle(.plain)
+             .foregroundStyle(BoxzyTheme.goldLight)
+         }
+         .padding(.horizontal, 13)
+-        .frame(height: 68)
++        .padding(.vertical, 12)
+         .background {
+             RoundedRectangle(cornerRadius: 16, style: .continuous)
+                 .fill(Color.white.opacity(0.025))
+                 .overlay {
+                     RoundedRectangle(cornerRadius: 16, style: .continuous)
+-                        .stroke(BoxzyTheme.gold.opacity(0.6), lineWidth: 0.8)
++                        .stroke(BoxzyTheme.stroke, lineWidth: 1)
+                 }
+         }
+     }
+--- original/BoxzyApp/PrizeDetailsView.swift
++++ updated/BoxzyApp/PrizeDetailsView.swift
+@@ -83,13 +83,13 @@
+                 .foregroundStyle(BoxzyTheme.muted)
+ 
+             Text(prize.name)
+-                .font(.system(size: 26, weight: .bold))
++                .boxzyFont(26, weight: .bold)
+                 .fontWidth(.condensed)
+                 .lineLimit(2)
+                 .minimumScaleFactor(0.82)
+ 
+             Text(prize.value.usd)
+-                .font(.system(size: 38, weight: .bold, design: .rounded))
++                .boxzyFont(38, weight: .bold, design: .rounded)
+ 
+             Text("Estimated market value")
+                 .font(.subheadline)
+@@ -166,7 +166,7 @@
+                     .foregroundStyle(.white)
+ 
+                 Text("SAMPLE ODDS")
+-                    .font(.caption2.weight(.bold))
++                    .font(.caption.weight(.bold))
+                     .lineLimit(1)
+                     .fixedSize(horizontal: true, vertical: false)
+                     .foregroundStyle(BoxzyTheme.starter)
+--- original/BoxzyApp/PurchaseFlowView.swift
++++ updated/BoxzyApp/PurchaseFlowView.swift
+@@ -78,6 +78,7 @@
+           )
+         case .addFunds:
+           PurchaseAddFundsView(
++            box: box,
+             balance: balance,
+             requiredAmount: max(5, Double(box.price) - balance),
+             onSuccess: depositSucceeded,
+@@ -320,7 +321,7 @@
+     ScrollView {
+       VStack(spacing: 24) {
+         Image(systemName: stage == .updating ? "arrow.triangle.2.circlepath" : "exclamationmark.circle")
+-          .font(.system(size: 36)).foregroundStyle(BoxzyTheme.gold)
++          .boxzyFont(36).foregroundStyle(BoxzyTheme.gold)
+         Text(stage == .updating ? "New prizes on the way." : "Unable to open your box")
+           .font(.title2.bold()).multilineTextAlignment(.center)
+         Text(stage == .updating ? "Your box is safe in My Collection. Open once the update is complete." : "Your box is still in My Collection → Unopened. Please try again later.")
+@@ -699,7 +700,7 @@
+       if let onBack {
+         Button(action: onBack) {
+           Image(systemName: "chevron.left")
+-            .font(.system(size: 16, weight: .semibold))
++            .boxzyFont(16, weight: .semibold)
+             .foregroundStyle(.white.opacity(0.92))
+             .frame(width: 44, height: 44)
+             .background(Color.white.opacity(0.025), in: Circle())
+@@ -716,7 +717,7 @@
+ 
+       if let balance {
+         Text("$\(balance, specifier: "%.2f")")
+-          .font(.system(size: 16, weight: .semibold, design: .rounded))
++          .boxzyFont(16, weight: .semibold, design: .rounded)
+           .padding(.horizontal, 16)
+           .frame(minWidth: 96, minHeight: 40, maxHeight: 40)
+           .background(
+@@ -749,6 +750,7 @@
+ }
+ 
+ private struct PurchaseAddFundsView: View {
++  let box: MysteryBox
+   let balance: Double
+   let requiredAmount: Double
+   let onSuccess: (Double) -> Void
+@@ -756,7 +758,8 @@
+   @State private var isProcessing = false
+   @State private var enteredAmount: String
+ 
+-  init(balance: Double, requiredAmount: Double, onSuccess: @escaping (Double) -> Void, onFailure: @escaping () -> Void) {
++  init(box: MysteryBox, balance: Double, requiredAmount: Double, onSuccess: @escaping (Double) -> Void, onFailure: @escaping () -> Void) {
++    self.box = box
+     self.balance = balance
+     self.requiredAmount = requiredAmount
+     self.onSuccess = onSuccess
+@@ -766,11 +769,12 @@
+ 
+   var body: some View {
+     VStack(spacing: 0) {
+-      PurchaseTopBar(balance: balance, onBack: onFailure)
+-      Text("Complete your purchase").font(.system(size: 24, weight: .bold)).padding(.top, 12)
++      HStack { Button(action: onFailure) { Image(systemName: "chevron.left").foregroundStyle(.white).frame(width: 44, height: 44) }.accessibilityLabel("Back"); Spacer() }.padding(.horizontal, 20)
++      Text("Complete your purchase").boxzyFont(24, weight: .bold).padding(.top, 12)
++      Text("\(box.name.capitalized) Box · \(box.price.usd)").boxzyFont(17).foregroundStyle(BoxzyTheme.muted).padding(.top, 8)
+       GoldMoneyEntry(amount: $enteredAmount, balance: balance, minimum: ceil(max(5, requiredAmount)), withdrawal: false,
+         context: "Add at least \(requiredAmount.formatted(.currency(code: "USD").locale(Locale(identifier: "en_US")))) to continue.",
+-        isSubmitting: isProcessing) { value in
++        isSubmitting: isProcessing, continuesPurchase: true) { value in
+           guard !isProcessing else { return }
+           isProcessing = true
+           Task { @MainActor in
+@@ -791,27 +795,22 @@
+   let onChoose: () -> Void
+   let onCancel: () -> Void
+ 
++  @Environment(\.dynamicTypeSize) private var typeSize
+   @State private var dragOffset: CGFloat = 0
+ 
+   var body: some View {
+     GeometryReader { geometry in
+       let compact = geometry.size.height < 740
++      BoxzyAdaptiveScroll(enabled: typeSize.isAccessibilitySize) {
+       VStack(spacing: 0) {
+         PurchaseTopBar(balance: balance, onBack: onBack)
+ 
+         VStack(alignment: .leading, spacing: 12) {
+-          Text("YOUR \(box.name) BOX IS READY")
+-            .font(.system(size: 12, weight: .bold))
+-            .tracking(1.8)
+-            .foregroundStyle(BoxzyTheme.blue)
+-          Text("Choose yours.")
+-            .font(.system(size: 40, weight: .bold))
+-            .lineLimit(1)
+-            .minimumScaleFactor(0.92)
++          Text("Ready to open")
++            .boxzyFont(28, weight: .bold)
+             .accessibilityIdentifier("selection.title")
+-          Text("Swipe through 24 sealed boxes, then make your pick.")
+-            .font(.system(size: 18))
+-            .foregroundStyle(BoxzyTheme.muted)
++          Text("Your \(box.name.capitalized) Box is purchased.\nSwipe to choose a box number.")
++            .boxzyFont(16).foregroundStyle(BoxzyTheme.muted)
+             .fixedSize(horizontal: false, vertical: true)
+         }
+         .frame(maxWidth: .infinity, alignment: .leading)
+@@ -819,7 +818,7 @@
+         .padding(.top, compact ? 24 : 32)
+ 
+         carousel
+-          .frame(maxHeight: .infinity)
++          .frame(minHeight: typeSize.isAccessibilitySize ? 300 : nil, maxHeight: typeSize.isAccessibilitySize ? 300 : .infinity)
+           .padding(.top, compact ? 12 : 20)
+           .accessibilityIdentifier("selection.carousel")
+ 
+@@ -829,23 +828,26 @@
+ 
+         VStack(spacing: 16) {
+           Button(action: onChoose) {
+-            Text("Choose Box \(twoDigit(selectedNumber))")
+-              .font(.system(size: 19, weight: .semibold))
++            Text("Open Box \(twoDigit(selectedNumber))")
++              .boxzyFont(16, weight: .semibold)
+           }
+           .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 15))
+           .accessibilityIdentifier("selection.confirm")
+ 
+           Button("Open later", action: onCancel)
+-            .font(.system(size: 18))
+-            .foregroundStyle(BoxzyTheme.blue)
++            .boxzyFont(16)
++            .foregroundStyle(.white)
+             .frame(maxWidth: .infinity, minHeight: 44)
+             .contentShape(Rectangle())
+             .accessibilityIdentifier("selection.later")
++          Text("Saved in Collection · Unopened").boxzyFont(13).foregroundStyle(BoxzyTheme.muted)
+         }
+         .padding(.horizontal, 24)
+         .padding(.bottom, 14)
+       }
+-      .frame(width: geometry.size.width, height: geometry.size.height)
++      .frame(width: geometry.size.width)
++      .frame(minHeight: geometry.size.height)
++      }
+     }
+   }
+ 
+@@ -897,9 +899,6 @@
+ 
+   private func numberedBox(number: Int, width: CGFloat, prominence: CGFloat) -> some View {
+     ZStack(alignment: .bottom) {
+-      StageGlowRing(intensity: prominence * 0.82)
+-        .frame(width: width * 1.22, height: width * 0.25)
+-        .opacity(prominence)
+ 
+       Image(box.imageName)
+         .resizable()
+@@ -908,7 +907,7 @@
+         .offset(y: -width * 0.19)
+         .brightness(-0.16 * (1 - prominence))
+         .saturation(0.72 + prominence * 0.28)
+-        .shadow(color: BoxzyTheme.blue.opacity(0.32 * prominence), radius: 26)
++
+     }
+     .frame(width: width, height: width * 1.30)
+     .accessibilityHidden(true)
+@@ -920,7 +919,7 @@
+       Text(twoDigit(selectedNumber)).foregroundStyle(BoxzyTheme.blue)
+       Text("OF 24")
+     }
+-    .font(.system(size: 17, weight: .semibold))
++    .boxzyFont(17, weight: .semibold)
+     .tracking(3.2)
+     .foregroundStyle(BoxzyTheme.muted)
+     .accessibilityElement(children: .ignore)
+@@ -978,7 +977,7 @@
+           .foregroundStyle(BoxzyTheme.blue)
+           .padding(.top, 44)
+         Text("Box \(twoDigit(boxNumber)) is yours.")
+-          .font(.system(size: 40, weight: .bold))
++          .boxzyFont(40, weight: .bold)
+           .padding(.top, 12)
+         Text("Ready to reveal what’s sealed inside?")
+           .font(.body)
+@@ -1259,6 +1258,7 @@
+ 
+ private struct PrizeResultView: View {
+   let prize: PullPrize
++  @Environment(\.dynamicTypeSize) private var typeSize
+   let boxPrice: Int
+   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+   let onKeep: () -> Void
+@@ -1286,6 +1286,7 @@
+       .allowsHitTesting(false)
+ 
+       GeometryReader { proxy in
++        BoxzyAdaptiveScroll(enabled: typeSize.isAccessibilitySize) {
+         VStack(spacing: 0) {
+           Text("YOU PULLED")
+             .font(.caption.weight(.bold))
+@@ -1294,19 +1295,18 @@
+             .padding(.top, max(32, proxy.size.height * 0.042))
+ 
+           Text(prize.name)
+-            .font(.system(size: 29, weight: .bold))
++            .boxzyFont(28, weight: .bold)
+             .multilineTextAlignment(.center)
+             .lineSpacing(2)
+             .padding(.horizontal, 28)
+             .padding(.top, 15)
+-            .lineLimit(2)
+-            .minimumScaleFactor(0.82)
++            .lineLimit(nil)
+             .fixedSize(horizontal: false, vertical: true)
+             .layoutPriority(1)
+ 
+           HStack(spacing: 16) {
+             Text(prize.value.usd)
+-              .font(.system(size: 31, weight: .bold))
++              .boxzyFont(31, weight: .bold)
+ 
+             Rectangle()
+               .fill(Color.white.opacity(0.24))
+@@ -1330,8 +1330,8 @@
+             .scaledToFit()
+             .frame(maxWidth: 310, maxHeight: min(390, proxy.size.height * 0.43))
+             .shadow(color: Color.black.opacity(0.55), radius: 22, y: 14)
+-            .shadow(color: BoxzyTheme.gold.opacity(0.16), radius: 28)
+-            .frame(height: min(400, proxy.size.height * 0.44))
++
++            .frame(height: typeSize.isAccessibilitySize ? 240 : min(400, proxy.size.height * 0.44))
+             .padding(.top, 4)
+ 
+           Spacer(minLength: 0)
+@@ -1345,9 +1345,9 @@
+               .accessibilityHint("Keeps this prize in your collection, then starts another purchase")
+ 
+             Button("Keep in my collection", action: onKeep)
+-              .font(.system(size: 16, weight: .regular))
+-              .foregroundStyle(BoxzyTheme.muted)
+-              .frame(minHeight: 42)
++              .boxzyFont(15, weight: .regular)
++              .foregroundStyle(.white)
++              .frame(minHeight: 44)
+           }
+           .padding(.horizontal, 24)
+           .padding(.top, 36)
+@@ -1361,6 +1361,7 @@
+             .padding(.top, -74)
+             .ignoresSafeArea(edges: .bottom)
+           }
++        }.frame(minHeight: proxy.size.height)
+         }
+       }
+     }
+@@ -1444,74 +1445,26 @@
+   let credit: Double
+   let onOpenAgain: () -> Void
+   let onMaybeLater: () -> Void
+-
+   var body: some View {
+-    GeometryReader { proxy in
++    ScrollView {
+       VStack(spacing: 0) {
+-        saleConfirmation
+-          .padding(.top, max(34, proxy.size.height * 0.045))
+-
+-        Spacer(minLength: 18)
+-
+-        SameBoxUpsellHero(box: box)
+-          .frame(height: min(330, proxy.size.height * 0.38))
+-
+-        Text("ONE MORE PULL?")
+-          .font(.system(size: 14, weight: .bold))
+-          .tracking(3.2)
+-          .foregroundStyle(BoxzyTheme.gold)
+-          .padding(.top, 12)
+-
+-        Text("Same box. A fresh chance.")
+-          .font(.system(size: 16, weight: .regular))
+-          .foregroundStyle(BoxzyTheme.muted)
+-          .padding(.top, 8)
+-
+-        Spacer(minLength: 24)
+-
+-        Button("OPEN AGAIN", action: onOpenAgain)
+-          .buttonStyle(ResultActionButtonStyle(primary: true))
+-
+-        Button("Maybe later", action: onMaybeLater)
+-          .font(.system(size: 16, weight: .regular))
+-          .foregroundStyle(BoxzyTheme.muted.opacity(0.72))
+-          .frame(minHeight: 44)
+-          .padding(.top, 10)
+-      }
+-      .padding(.horizontal, 24)
+-      .padding(.bottom, 10)
+-    }
+-    .accessibilityElement(children: .contain)
+-  }
+-
+-  private var saleConfirmation: some View {
+-    VStack(spacing: 0) {
+-      Image(systemName: "checkmark")
+-        .font(.system(size: 31, weight: .medium))
+-        .foregroundStyle(BoxzyTheme.goldLight)
+-        .frame(width: 78, height: 78)
+-        .background(BoxzyTheme.goldDeep.opacity(0.10), in: Circle())
+-        .overlay {
+-          Circle()
+-            .stroke(BoxzyTheme.goldLight, lineWidth: 2.2)
+-        }
+-        .shadow(color: BoxzyTheme.gold.opacity(0.28), radius: 18)
+-
+-      Text("SOLD")
+-        .font(.caption.weight(.bold))
+-        .tracking(4)
+-        .foregroundStyle(BoxzyTheme.gold)
+-        .padding(.top, 18)
+-
+-      Text("+\(credit.currency)")
+-        .font(.system(size: 48, weight: .bold))
+-        .padding(.top, 12)
+-
+-      Text("Added to your BOXZY balance")
+-        .font(.system(size: 16, weight: .regular))
+-        .foregroundStyle(BoxzyTheme.muted)
+-        .padding(.top, 10)
+-    }
++        Image(systemName: "checkmark").boxzyFont(28, weight: .medium)
++          .foregroundStyle(BoxzyTheme.gold).frame(width: 64, height: 64)
++          .overlay(Circle().stroke(BoxzyTheme.gold, lineWidth: 1.5)).padding(.top, 36)
++        Text("SOLD").boxzyFont(17, weight: .semibold).tracking(2).padding(.top, 16)
++        Text("+\(credit.currency)").boxzyFont(36, weight: .bold).padding(.top, 12)
++        Text("Added to your BOXZY balance").boxzyFont(15).foregroundStyle(BoxzyTheme.muted).padding(.top, 8)
++        Image(box.imageName).resizable().scaledToFit().frame(width: 160, height: 180).padding(.top, 28)
++        Text("\(box.name.capitalized) Box").boxzyFont(20, weight: .semibold).padding(.top, 12)
++        Text(box.price.usd).boxzyFont(17).foregroundStyle(BoxzyTheme.muted).padding(.top, 4)
++        VStack(spacing: 12) {
++          Button("Done", action: onMaybeLater).buttonStyle(BoxzyPrimaryButtonStyle())
++            .accessibilityIdentifier("sale.done")
++          Button("Open again · \(box.price.usd)", action: onOpenAgain).buttonStyle(BoxzySecondaryButtonStyle())
++            .accessibilityIdentifier("sale.again")
++        }.padding(.top, 24)
++      }.padding(.horizontal, 24).padding(.bottom, 24).frame(maxWidth: .infinity)
++    }.accessibilityElement(children: .contain)
+   }
+ }
+ 
+@@ -1575,7 +1528,7 @@
+         Text("Instant sell offer")
+           .font(.title2.bold())
+ 
+-        Text("Sell this sealed product back to BOXZY for instant account credit.")
++        Text("Sell for instant BOXZY account credit.")
+           .font(.subheadline)
+           .foregroundStyle(BoxzyTheme.muted)
+           .lineSpacing(3)
+@@ -1612,7 +1565,7 @@
+         Button(action: onKeep) {
+           Text("Keep in collection")
+             .font(.body)
+-            .foregroundStyle(BoxzyTheme.muted.opacity(0.72))
++            .foregroundStyle(.white)
+             .frame(maxWidth: .infinity)
+             .frame(minHeight: 44)
+             .contentShape(Rectangle())
+@@ -1644,7 +1597,7 @@
+           .minimumScaleFactor(0.82)
+ 
+         Text("\(prize.rarity)  ·  MARKET VALUE \(marketValue.currency)")
+-          .font(.caption2.weight(.bold))
++          .font(.caption.weight(.bold))
+           .tracking(1.0)
+           .foregroundStyle(BoxzyTheme.muted)
+           .lineLimit(1)
+@@ -1679,7 +1632,7 @@
+       }
+     }
+     .padding(16)
+-    .boxzyCard(cornerRadius: 16)
++
+     .accessibilityElement(children: .combine)
+   }
+ 
+@@ -1746,10 +1699,11 @@
+ 
+   func makeBody(configuration: Configuration) -> some View {
+     configuration.label
+-      .font(.headline)
+-      .foregroundStyle(primary ? BoxzyTheme.background : BoxzyTheme.gold)
++      .boxzyFont(16, weight: .semibold)
++      .padding(.horizontal, 16).padding(.vertical, 12)
++      .foregroundStyle(primary ? BoxzyTheme.background : Color.white)
+       .frame(maxWidth: .infinity)
+-      .frame(height: 52)
++      .frame(minHeight: 52)
+       .background {
+         RoundedRectangle(cornerRadius: 16, style: .continuous)
+           .fill(
+@@ -1760,9 +1714,9 @@
+       }
+       .overlay {
+         RoundedRectangle(cornerRadius: 16, style: .continuous)
+-          .stroke(primary ? BoxzyTheme.goldLight.opacity(0.70) : BoxzyTheme.gold.opacity(0.72), lineWidth: primary ? 0.5 : 1.25)
+-      }
+-      .shadow(color: primary ? BoxzyTheme.gold.opacity(0.24) : .clear, radius: 12, y: 5)
++          .stroke(primary ? Color.clear : Color(white: 0.6), lineWidth: primary ? 0.5 : 1.25)
++      }
++
+       .scaleEffect(configuration.isPressed ? 0.98 : 1)
+   }
+ }
+--- original/BoxzyApp/SignedInAccountView.swift
++++ updated/BoxzyApp/SignedInAccountView.swift
+@@ -20,7 +20,6 @@
+     @State private var isPresentingShippingAddresses = false
+     @State private var isPresentingTransactionHistory = false
+     @State private var isPresentingSupport = false
+-    @State private var showsReferralCopiedToast = false
+ 
+     var body: some View {
+         ZStack {
+@@ -32,27 +31,14 @@
+                     profile.padding(.top, 22)
+                     balancePanel.padding(.top, 18)
+ 
+-                    HStack(spacing: 0) {
+-                        quickAction(
+-                            icon: "location.fill",
+-                            title: "Shipping",
+-                            subtitle: hasShippingAddress ? "Home · Default" : "No address saved",
+-                            trailingIcon: "chevron.right"
+-                        ) { isPresentingShippingAddresses = true }
+-                        quickAction(
+-                            icon: "gift.fill",
+-                            title: "Referral",
+-                            subtitle: "UTOCV5",
+-                            trailingIcon: "doc.on.doc"
+-                        ) { copyReferralCode() }
+-                    }
++                    quickAction(
++                        icon: "location.fill",
++                        title: "Shipping",
++                        subtitle: hasShippingAddress ? "Home · Default" : "No address saved",
++                        trailingIcon: "chevron.right"
++                    ) { isPresentingShippingAddresses = true }
+                     .frame(height: 82)
+                     .background(BoxzyAccountSurface(cornerRadius: 20))
+-                    .overlay(alignment: .center) {
+-                        Rectangle()
+-                            .fill(Color.white.opacity(0.08))
+-                            .frame(width: 1, height: 46)
+-                    }
+                     .padding(.top, 14)
+ 
+                     VStack(spacing: 0) {
+@@ -71,28 +57,11 @@
+                     .padding(.top, 16)
+ 
+                     Button("Delete Account") { activeSheet = .delete }
++                        .frame(minHeight: 44)
+                         .font(.caption.weight(.medium)).foregroundStyle(BoxzyTheme.danger)
+                         .padding(.top, 14).padding(.bottom, 12)
+                 }
+                 .padding(.horizontal, 20)
+-            }
+-        }
+-        .overlay(alignment: .top) {
+-            if showsReferralCopiedToast {
+-                HStack(spacing: 10) {
+-                    Image(systemName: "checkmark.circle.fill")
+-                        .foregroundStyle(BoxzyTheme.blue)
+-                    Text("Referral code UTOCV5 copied")
+-                        .font(.subheadline.weight(.semibold))
+-                        .foregroundStyle(.white)
+-                }
+-                .padding(.horizontal, 16)
+-                .frame(height: 46)
+-                .background(.ultraThinMaterial, in: Capsule())
+-                .overlay(Capsule().stroke(BoxzyTheme.blue.opacity(0.55), lineWidth: 1))
+-                .shadow(color: BoxzyTheme.blue.opacity(0.24), radius: 18, y: 8)
+-                .padding(.top, 10)
+-                .transition(.move(edge: .top).combined(with: .opacity))
+             }
+         }
+         .sheet(isPresented: $isPresentingAddFunds) {
+@@ -153,32 +122,22 @@
+                 activeSheet = .withdraw
+             } else if arguments.contains("-BoxzyDeleteAccountPreview") {
+                 activeSheet = .delete
++            } else if arguments.contains("-BoxzyProfilePreview") { activeSheet = .editProfile
++            } else if arguments.contains("-BoxzySignOutPreview") { activeSheet = .signOut
++            } else if arguments.contains("-BoxzyAddressesPreview") { isPresentingShippingAddresses = true
++            } else if arguments.contains("-BoxzyTransactionsPreview") { isPresentingTransactionHistory = true
++            } else if arguments.contains("-BoxzySupportPreview") { isPresentingSupport = true
++            } else if arguments.contains("-BoxzyDepositPreview") { isPresentingAddFunds = true
+             }
+ #endif
+         }
+         .toolbar(.hidden, for: .navigationBar)
+-    }
+-
+-    private func copyReferralCode() {
+-        UIPasteboard.general.string = "UTOCV5"
+-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+-
+-        withAnimation(.snappy(duration: 0.24)) {
+-            showsReferralCopiedToast = true
+-        }
+-
+-        Task { @MainActor in
+-            try? await Task.sleep(nanoseconds: 1_800_000_000)
+-            withAnimation(.easeOut(duration: 0.2)) {
+-                showsReferralCopiedToast = false
+-            }
+-        }
+     }
+ 
+     private var profile: some View {
+         HStack(spacing: 12) {
+             Image(systemName: "person")
+-                .font(.system(size: 18, weight: .medium))
++                .boxzyFont(18, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.blue)
+                 .frame(width: 44, height: 44)
+                 .background(BoxzyTheme.deepSurface.opacity(0.72), in: Circle())
+@@ -186,18 +145,19 @@
+ 
+             VStack(alignment: .leading, spacing: 2) {
+                 Text(username)
+-                    .font(.system(size: 14, weight: .semibold))
++                    .boxzyFont(14, weight: .semibold)
+                     .foregroundStyle(.white)
+                     .lineLimit(1)
+                 Text("Member since Sep 2026")
+-                    .font(.system(size: 11.5))
++                    .boxzyFont(12)
+                     .foregroundStyle(BoxzyTheme.muted)
+             }
+ 
+             Spacer()
+ 
+             Button("Edit") { activeSheet = .editProfile }
+-                .font(.system(size: 13, weight: .medium))
++                .frame(minWidth: 44, minHeight: 44)
++                .boxzyFont(13, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.blue)
+             .buttonStyle(.plain)
+         }
+@@ -207,12 +167,12 @@
+     private var balancePanel: some View {
+         VStack(alignment: .leading, spacing: 0) {
+             Text("AVAILABLE BALANCE")
+-                .font(.system(size: 11, weight: .bold))
++                .boxzyFont(12, weight: .bold)
+                 .tracking(2.2)
+                 .foregroundStyle(BoxzyTheme.blue)
+ 
+             Text("$\(balance, specifier: "%.2f")")
+-                .font(.system(size: 40, weight: .bold, design: .rounded))
++                .boxzyFont(36, weight: .bold, design: .rounded)
+                 .foregroundStyle(.white)
+                 .minimumScaleFactor(0.72)
+                 .lineLimit(1)
+@@ -221,32 +181,20 @@
+             HStack(spacing: 10) {
+                 Button { isPresentingAddFunds = true } label: {
+                     Text("Deposit")
+-                        .font(.system(size: 15, weight: .semibold))
++                        .boxzyFont(15, weight: .semibold)
+                         .frame(maxWidth: .infinity)
+                 }
+-                .buttonStyle(BoxzyPrimaryButtonStyle(height: 48, cornerRadius: 15))
+-
+-                Button { activeSheet = .withdraw } label: {
+-                    Text("Withdraw")
+-                        .font(.system(size: 15, weight: .semibold))
+-                        .frame(maxWidth: .infinity)
+-                        .frame(height: 48)
+-                        .foregroundStyle(BoxzyTheme.blue)
+-                        .background(BoxzyTheme.background.opacity(0.68), in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+-                        .overlay {
+-                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+-                                .stroke(BoxzyTheme.blue.opacity(0.75), lineWidth: 1)
+-                        }
+-                }
+-                .buttonStyle(.plain)
++                .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 15))
++
++                Button("Withdraw") { activeSheet = .withdraw }
++                    .buttonStyle(BoxzySecondaryButtonStyle())
+             }
+             .padding(.top, 26)
+         }
+         .padding(.horizontal, 22)
+         .padding(.vertical, 21)
+-        .frame(height: 202, alignment: .topLeading)
++        .frame(minHeight: 202, alignment: .topLeading)
+         .background(AccountWalletSurface())
+-        .shadow(color: BoxzyTheme.blue.opacity(0.15), radius: 23, y: 10)
+     }
+ 
+     private func quickAction(
+@@ -259,19 +207,19 @@
+         Button(action: action) {
+             HStack(spacing: 10) {
+                 Image(systemName: icon)
+-                    .font(.system(size: 18, weight: .medium))
++                    .boxzyFont(18, weight: .medium)
+                     .foregroundStyle(BoxzyTheme.blue)
+                     .frame(width: 38, height: 38)
+                     .background(BoxzyTheme.blue.opacity(0.08), in: Circle())
+ 
+                 VStack(alignment: .leading, spacing: 3) {
+                     Text(title)
+-                        .font(.system(size: 13, weight: .semibold))
++                        .boxzyFont(13, weight: .semibold)
+                         .foregroundStyle(.white)
+                         .lineLimit(1)
+                         .minimumScaleFactor(0.76)
+                     Text(subtitle)
+-                        .font(.system(size: 11))
++                        .boxzyFont(12)
+                         .foregroundStyle(BoxzyTheme.muted)
+                         .lineLimit(1)
+                         .minimumScaleFactor(0.70)
+@@ -294,11 +242,11 @@
+         Button(action: action) {
+             HStack(spacing: 12) {
+                 Image(systemName: icon)
+-                    .font(.system(size: 16, weight: .medium))
++                    .boxzyFont(16, weight: .medium)
+                     .foregroundStyle(title == "Sign Out" ? BoxzyTheme.muted : BoxzyTheme.blue)
+                     .frame(width: 32, height: 32)
+                     .background(Color.white.opacity(0.035), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+-                Text(title).font(.system(size: 14, weight: .medium)).foregroundStyle(.white)
++                Text(title).boxzyFont(14, weight: .medium).foregroundStyle(.white)
+                 Spacer()
+                 Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(BoxzyTheme.muted)
+             }
+@@ -365,13 +313,13 @@
+                             .focused($isFieldFocused)
+                             .textInputAutocapitalization(.never)
+                             .autocorrectionDisabled()
+-                            .font(.system(size: 20, weight: .regular))
++                            .boxzyFont(20, weight: .regular)
+                             .submitLabel(.done)
+ 
+                         if !draft.isEmpty {
+                             Button { draft = "" } label: {
+                                 Image(systemName: "xmark.circle.fill")
+-                                    .font(.system(size: 20))
++                                    .boxzyFont(20)
+                                     .foregroundStyle(BoxzyTheme.muted.opacity(0.72))
+                             }
+                             .buttonStyle(.plain)
+@@ -383,7 +331,6 @@
+                     .overlay {
+                         RoundedRectangle(cornerRadius: 15, style: .continuous)
+                             .stroke(BoxzyTheme.blue.opacity(isFieldFocused ? 1 : 0.72), lineWidth: 1)
+-                            .shadow(color: BoxzyTheme.blue.opacity(isFieldFocused ? 0.32 : 0.12), radius: 10)
+                     }
+                     .padding(.top, 10)
+ 
+@@ -455,7 +402,7 @@
+             HStack {
+                 Button { dismiss() } label: {
+                     Image(systemName: "chevron.left")
+-                        .font(.system(size: 17, weight: .semibold))
++                        .boxzyFont(17, weight: .semibold)
+                         .foregroundStyle(BoxzyTheme.blue)
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.deepSurface.opacity(0.9), in: Circle())
+@@ -639,12 +586,12 @@
+     private var withdrawHeader: some View {
+         ZStack(alignment: .topTrailing) {
+             Text("Withdraw funds")
+-                .font(.system(size: 24, weight: .bold))
++                .boxzyFont(24, weight: .bold)
+                 .frame(maxWidth: .infinity, alignment: .leading)
+ 
+             Button { dismiss() } label: {
+                 Image(systemName: "xmark")
+-                    .font(.system(size: 17, weight: .semibold))
++                    .boxzyFont(17, weight: .semibold)
+                     .foregroundStyle(.white)
+                     .frame(width: 44, height: 44)
+                     .background(BoxzyTheme.deepSurface, in: Circle())
+@@ -658,7 +605,7 @@
+     private var summaryCard: some View {
+         HStack(spacing: 15) {
+             Image(systemName: "wallet.bifold")
+-                .font(.system(size: 23, weight: .medium))
++                .boxzyFont(23, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.blue)
+                 .frame(width: 44, height: 44)
+                 .background(BoxzyTheme.deepSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+@@ -670,7 +617,7 @@
+                     .foregroundStyle(BoxzyTheme.muted)
+ 
+                 Text(withdrawalCurrency(available))
+-                    .font(.system(size: 34, weight: .bold, design: .rounded))
++                    .boxzyFont(34, weight: .bold, design: .rounded)
+ 
+                 Text("Daily limit \(withdrawalCurrency(dailyLimit))")
+                     .font(.caption)
+@@ -693,11 +640,11 @@
+             VStack(spacing: 8) {
+                 HStack(alignment: .firstTextBaseline, spacing: 5) {
+                     Text("$")
+-                        .font(.system(size: 34, weight: .medium, design: .rounded))
++                        .boxzyFont(34, weight: .medium, design: .rounded)
+                         .foregroundStyle(BoxzyTheme.muted)
+ 
+                 TextField("0.00", text: $amount)
+-                        .font(.system(size: 58, weight: .bold, design: .rounded))
++                        .boxzyFont(58, weight: .bold, design: .rounded)
+                         .multilineTextAlignment(.center)
+                     .keyboardType(.decimalPad)
+                         .focused($amountIsFocused)
+@@ -856,61 +803,35 @@
+                     BoxzyAccountGlow(center: UnitPoint(x: 0.52, y: 0.32))
+                     VStack(spacing: 0) {
+                         reviewHeader
+-                        VStack(spacing: 0) {
+-                            reviewRow("Withdrawal amount", value: withdrawalCurrency(amount))
+-                            Divider().overlay(BoxzyTheme.stroke.opacity(0.55))
+-                            reviewRow("Method", value: method.reviewName)
+-                            Divider().overlay(BoxzyTheme.stroke.opacity(0.55))
+-                            reviewRow("Processing fee", value: withdrawalCurrency(fee))
++                        ScrollView {
++                            VStack(spacing: 0) {
++                                reviewRow("Withdrawal amount", value: withdrawalCurrency(amount))
++                                Divider()
++                                reviewRow("Method", value: method.reviewName)
++                                Divider()
++                                reviewRow("Processing fee", value: withdrawalCurrency(fee))
++                                Divider()
++                                HStack {
++                                    Text("You receive").font(.headline)
++                                    Spacer()
++                                    Text(withdrawalCurrency(received)).boxzyFont(32, weight: .semibold).foregroundStyle(BoxzyTheme.gold)
++                                }.padding(.vertical, 20)
++                                Divider()
++                                reviewRow("Estimated arrival", value: method.arrival)
++                            }.padding(.horizontal, 20).boxzyCard().padding(20)
+                         }
+-                        .padding(.horizontal, 22)
+-                        .background(BoxzyAccountSurface(cornerRadius: 18))
+-                        .overlay(RoundedRectangle(cornerRadius: 18).stroke(BoxzyTheme.stroke.opacity(0.7), lineWidth: 1))
+-                        .padding(.horizontal, 16).padding(.top, 24)
+-
+-                        Rectangle().fill(BoxzyTheme.stroke.opacity(0.52)).frame(height: 1).padding(.horizontal, 16).padding(.top, 36)
+-
+-                        HStack {
+-                            Text("You receive").font(.headline)
+-                            Spacer()
+-                            Text(withdrawalCurrency(received)).font(.system(size: 38, weight: .bold, design: .rounded))
+-                        }
+-                        .padding(.horizontal, 22).frame(height: 94)
+-                        .background(BoxzyAccountSurface(cornerRadius: 18))
+-                        .padding(.horizontal, 16).padding(.top, 32)
+-
+-                        reviewRow("Estimated arrival", value: method.arrival)
+-                            .padding(.horizontal, 22).frame(height: 60)
+-                            .background(BoxzyAccountSurface(cornerRadius: 18))
+-                            .padding(.horizontal, 16).padding(.top, 10)
+-
+-                        Label("Withdrawals cannot be canceled\nafter confirmation.", systemImage: "checkmark.shield")
+-                            .font(.subheadline).foregroundStyle(BoxzyTheme.muted).lineSpacing(3)
+-                            .padding(.top, 30)
+-                        Spacer(minLength: 22)
+-                        VStack(spacing: 10) {
+-                            Button("BACK") { dismiss() }
+-                                .font(.headline).tracking(1.4).foregroundStyle(BoxzyTheme.blue)
+-                                .frame(maxWidth: .infinity).frame(height: 54)
+-                                .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 14)).buttonStyle(.plain)
+-                                .disabled(isSubmitting)
+-                                .opacity(isSubmitting ? 0.25 : 1)
+-
++                        VStack(spacing: 16) {
++                            Label("Withdrawals cannot be canceled after confirmation.", systemImage: "checkmark.shield")
++                                .boxzyFont(13).foregroundStyle(BoxzyTheme.muted).fixedSize(horizontal: false, vertical: true)
+                             Button(action: submitWithdrawal) {
+-                                HStack(spacing: 12) {
+-                                    if isSubmitting {
+-                                        ProgressView().tint(.white)
+-                                    }
+-                                    Text(isSubmitting ? "SUBMITTING…" : "CONFIRM WITHDRAWAL")
+-                                        .font(.headline)
+-                                        .tracking(1.3)
++                                HStack(spacing: 8) {
++                                    if isSubmitting { ProgressView().tint(.black) }
++                                    Text(isSubmitting ? "Submitting…" : "Confirm withdrawal · \(withdrawalCurrency(amount))")
+                                 }
+-                                .frame(maxWidth: .infinity)
+-                            }
+-                            .buttonStyle(BoxzyPrimaryButtonStyle(height: 54, cornerRadius: 14))
+-                            .disabled(isSubmitting)
+-                        }
+-                        .padding(.horizontal, 16).padding(.bottom, 12)
++                            }.buttonStyle(BoxzyPrimaryButtonStyle()).disabled(isSubmitting)
++                            .accessibilityIdentifier("withdraw.confirm")
++                        }.padding(.horizontal, 20).padding(.bottom, 12)
++
+                     }
+                 }
+             }
+@@ -927,7 +848,7 @@
+                     Image(systemName: "chevron.left").font(.headline).foregroundStyle(.white)
+                         .frame(width: 44, height: 44).background(BoxzyTheme.deepSurface, in: Circle())
+                         .overlay(Circle().stroke(BoxzyTheme.stroke.opacity(0.9), lineWidth: 1))
+-                }.buttonStyle(.plain)
++                }.buttonStyle(.plain).disabled(isSubmitting)
+                 Spacer()
+             }
+         }
+@@ -1027,7 +948,7 @@
+                     .padding(.top, isFailed ? 18 : 28)
+ 
+                 Text(withdrawalCurrency(amount))
+-                    .font(.system(size: 52, weight: .bold, design: .rounded))
++                    .boxzyFont(36, weight: .bold, design: .rounded)
+                     .padding(.top, 12)
+ 
+                 Text(status)
+@@ -1250,8 +1171,8 @@
+                 }
+ 
+                 if !records.isEmpty {
+-                    Label("Withdrawals may take 3–5 business days to complete.", systemImage: "info.circle")
+-                        .font(.system(size: 11.5, weight: .regular))
++                    Label("Check each withdrawal for its estimated completion.", systemImage: "info.circle")
++                        .boxzyFont(12, weight: .regular)
+                         .foregroundStyle(BoxzyTheme.muted.opacity(0.74))
+                         .lineLimit(1)
+                         .minimumScaleFactor(0.75)
+@@ -1267,6 +1188,11 @@
+                 }
+             }
+         }
++        .onAppear {
++#if DEBUG
++            if ProcessInfo.processInfo.arguments.contains("-BoxzyTransactionDetailPreview") { selectedRecord = records.first }
++#endif
++        }
+         .fullScreenCover(item: $selectedRecord) { record in
+             TransactionDetailView(transaction: record)
+         }
+@@ -1277,7 +1203,7 @@
+         VStack(alignment: .leading, spacing: 0) {
+             Button { dismiss() } label: {
+                 Image(systemName: "chevron.left")
+-                    .font(.system(size: 18, weight: .semibold))
++                    .boxzyFont(18, weight: .semibold)
+                     .foregroundStyle(.white)
+                     .frame(width: 44, height: 44)
+                     .background(BoxzyTheme.deepSurface, in: Circle())
+@@ -1286,7 +1212,7 @@
+             .buttonStyle(.plain)
+ 
+             Text("Transaction history")
+-                .font(.system(size: 30, weight: .bold))
++                .boxzyFont(30, weight: .bold)
+                 .padding(.top, 16)
+ 
+             Text("Deposits and withdrawals")
+@@ -1314,7 +1240,6 @@
+                                 Capsule()
+                                     .fill(BoxzyTheme.primaryGradient)
+                                     .overlay(Capsule().stroke(BoxzyTheme.cyan.opacity(0.78), lineWidth: 1))
+-                                    .shadow(color: BoxzyTheme.violet.opacity(0.40), radius: 10)
+                             }
+                         }
+                 }
+@@ -1331,7 +1256,7 @@
+         VStack(spacing: 13) {
+             Spacer().frame(height: 88)
+             Image(systemName: "clock.arrow.circlepath")
+-                .font(.system(size: 36, weight: .light))
++                .boxzyFont(36, weight: .light)
+                 .foregroundStyle(BoxzyTheme.blue)
+             Text("No transactions yet")
+                 .font(.title3.weight(.semibold))
+@@ -1348,14 +1273,14 @@
+         VStack(alignment: .leading, spacing: 9) {
+             HStack {
+                 Label(record.kind.rawValue, systemImage: record.kind == .deposit ? "arrow.down.left" : "arrow.up.right")
+-                    .font(.system(size: 16, weight: .semibold))
++                    .boxzyFont(16, weight: .semibold)
+                 Spacer()
+-                Text(record.signedAmount).font(.system(size: 19, weight: .semibold)).monospacedDigit()
++                Text(record.signedAmount).boxzyFont(19, weight: .semibold).monospacedDigit()
+             }
+             HStack {
+-                Text("\(record.method) · \(record.date)").font(.system(size: 13)).foregroundStyle(BoxzyTheme.muted)
++                Text("\(record.method) · \(record.date)").boxzyFont(13).foregroundStyle(BoxzyTheme.muted)
+                 Spacer(minLength: 6)
+-                Text(record.status.rawValue).font(.system(size: 11, weight: .semibold))
++                Text(record.status.rawValue).boxzyFont(12, weight: .semibold)
+                     .foregroundStyle(record.status.color)
+             }
+         }.padding(.vertical, 18).contentShape(Rectangle())
+@@ -1433,7 +1358,7 @@
+             HStack {
+                 Button { dismiss() } label: {
+                     Image(systemName: "chevron.left")
+-                        .font(.system(size: 18, weight: .semibold))
++                        .boxzyFont(18, weight: .semibold)
+                         .foregroundStyle(.white)
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.deepSurface, in: Circle())
+@@ -1450,14 +1375,14 @@
+     private var amountSummary: some View {
+         VStack(spacing: 10) {
+             Image(systemName: transaction.kind == .deposit ? "arrow.down" : "arrow.up")
+-                .font(.system(size: 24, weight: .semibold))
++                .boxzyFont(24, weight: .semibold)
+                 .foregroundStyle(transaction.status.color)
+                 .frame(width: 58, height: 58)
+                 .background(transaction.status.color.opacity(0.12), in: Circle())
+                 .overlay(Circle().stroke(transaction.status.color.opacity(0.52), lineWidth: 1))
+ 
+             Text(transaction.signedAmount)
+-                .font(.system(size: 36, weight: .bold, design: .rounded))
++                .boxzyFont(36, weight: .bold, design: .rounded)
+ 
+             Text(transaction.status.rawValue)
+                 .font(.subheadline.weight(.semibold))
+@@ -1513,7 +1438,7 @@
+     private func statusMessage(title: String, message: String, icon: String, color: Color) -> some View {
+         HStack(alignment: .top, spacing: 13) {
+             Image(systemName: icon)
+-                .font(.system(size: 17, weight: .semibold))
++                .boxzyFont(17, weight: .semibold)
+                 .foregroundStyle(color)
+                 .padding(.top, 2)
+             VStack(alignment: .leading, spacing: 5) {
+@@ -1534,28 +1459,7 @@
+     }
+ }
+ 
+-private struct AddressPrimaryButtonStyle: ButtonStyle {
+-    let height: CGFloat
+-    let cornerRadius: CGFloat
+-
+-    func makeBody(configuration: Configuration) -> some View {
+-        configuration.label
+-            .foregroundStyle(BoxzyTheme.background)
+-            .frame(maxWidth: .infinity)
+-            .frame(height: height)
+-            .background(
+-                BoxzyTheme.primaryGradient,
+-                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-            )
+-            .overlay {
+-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-                    .stroke(BoxzyTheme.cyan.opacity(0.72), lineWidth: 0.8)
+-            }
+-            .shadow(color: BoxzyTheme.violet.opacity(configuration.isPressed ? 0.10 : 0.30), radius: 16, y: 5)
+-            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+-    }
+-}
++
+ 
+ struct AccountAddress: Identifiable, Equatable, Codable {
+     let id: UUID
+@@ -1681,6 +1585,9 @@
+         .preferredColorScheme(.dark)
+         .onAppear {
+             hasAddress = !addresses.isEmpty
++#if DEBUG
++            if ProcessInfo.processInfo.arguments.contains("-BoxzyAddressFormPreview") { editorRoute = .add }
++#endif
+         }
+     }
+ 
+@@ -1696,24 +1603,24 @@
+                 .frame(width: 140, height: 140)
+ 
+             Text("No saved addresses")
+-                .font(.system(size: 25, weight: .bold))
++                .boxzyFont(25, weight: .bold)
+                 .padding(.top, 2)
+ 
+             Text("Add an address to use\nwhen shipping items.")
+-                .font(.system(size: 17))
++                .boxzyFont(17)
+                 .foregroundStyle(BoxzyTheme.muted)
+                 .multilineTextAlignment(.center)
+                 .lineSpacing(4)
+                 .padding(.top, 10)
+ 
+             Button("ADD ADDRESS") { editorRoute = .add }
+-                .font(.system(size: 17, weight: .semibold))
+-                .buttonStyle(AddressPrimaryButtonStyle(height: 46, cornerRadius: 13))
++                .boxzyFont(17, weight: .semibold)
++                .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 13))
+                 .frame(width: 164)
+                 .padding(.top, 22)
+ 
+             Label("Your address is used only for delivery.", systemImage: "checkmark.shield")
+-                .font(.system(size: 14))
++                .boxzyFont(14)
+                 .foregroundStyle(BoxzyTheme.muted)
+                 .symbolRenderingMode(.hierarchical)
+                 .padding(.top, 52)
+@@ -1725,21 +1632,20 @@
+     private var centeredHeader: some View {
+         ZStack {
+             Text("Shipping addresses")
+-                .font(.system(size: 18, weight: .semibold))
++                .boxzyFont(18, weight: .semibold)
+ 
+             HStack {
+                 circleBackButton
+                 Spacer()
+                 Button { editorRoute = .add } label: {
+                     Image(systemName: "plus")
+-                        .font(.system(size: 23, weight: .medium))
+-                        .foregroundStyle(.white)
++                        .boxzyFont(23, weight: .medium)
++                        .foregroundStyle(BoxzyTheme.background)
+                         .frame(width: 44, height: 44)
+                         .background(
+                             BoxzyTheme.primaryGradient,
+                             in: Circle()
+                         )
+-                        .shadow(color: BoxzyTheme.blue.opacity(0.32), radius: 14)
+                 }
+                 .buttonStyle(.plain)
+             }
+@@ -1750,34 +1656,7 @@
+ 
+     private var addressList: some View {
+         VStack(spacing: 0) {
+-            HStack {
+-                circleBackButton
+-                Spacer()
+-            }
+-            .padding(.horizontal, 16)
+-            .frame(height: 64)
+-
+-            HStack(alignment: .center) {
+-                VStack(alignment: .leading, spacing: 8) {
+-                    Text("Shipping addresses")
+-                        .font(.system(size: 26, weight: .bold))
+-                    Text("Manage your saved delivery addresses.")
+-                        .font(.subheadline)
+-                        .foregroundStyle(BoxzyTheme.muted)
+-                }
+-
+-                Spacer(minLength: 12)
+-
+-                Button { editorRoute = .add } label: {
+-                    Label("ADD ADDRESS", systemImage: "plus")
+-                        .font(.caption.weight(.semibold))
+-                        .frame(width: 118, height: 42)
+-                }
+-                .buttonStyle(AddressPrimaryButtonStyle(height: 42, cornerRadius: 11))
+-            }
+-            .padding(.horizontal, 20)
+-            .padding(.top, 16)
+-            .padding(.bottom, 24)
++            centeredHeader
+ 
+             ScrollView(showsIndicators: false) {
+                 LazyVStack(spacing: 16) {
+@@ -1816,9 +1695,6 @@
+ 
+                 Spacer()
+ 
+-                Image(systemName: "ellipsis")
+-                    .font(.headline)
+-                    .foregroundStyle(BoxzyTheme.muted)
+             }
+ 
+             Text(address.fullName)
+@@ -1831,7 +1707,7 @@
+                 Text("United States")
+             }
+             .font(.body)
+-            .foregroundStyle(Color(red: 0.70, green: 0.76, blue: 0.88))
++            .foregroundStyle(BoxzyTheme.muted)
+             .padding(.top, 12)
+ 
+             if !address.phone.isEmpty || !address.email.isEmpty {
+@@ -1840,7 +1716,7 @@
+                     if !address.email.isEmpty { Label(address.email, systemImage: "envelope") }
+                 }
+                 .font(.subheadline)
+-                .foregroundStyle(Color(red: 0.70, green: 0.76, blue: 0.88))
++                .foregroundStyle(BoxzyTheme.muted)
+                 .tint(BoxzyTheme.blue)
+                 .padding(.top, 18)
+             }
+@@ -1848,10 +1724,10 @@
+             HStack(spacing: 18) {
+                 Spacer()
+                 if !address.isDefault {
+-                    Button("SET AS DEFAULT") { makeDefault(address) }
+-                        .foregroundStyle(Color(red: 0.70, green: 0.76, blue: 0.88))
+-                }
+-                Button("EDIT") { editorRoute = .edit(address) }
++                    Button("Set as default") { makeDefault(address) }.frame(minHeight: 44)
++                        .foregroundStyle(BoxzyTheme.muted)
++                }
++                Button("Edit") { editorRoute = .edit(address) }.frame(minWidth: 44, minHeight: 44)
+                     .foregroundStyle(BoxzyTheme.blue)
+             }
+             .font(.subheadline.weight(.semibold))
+@@ -1866,7 +1742,7 @@
+     private var circleBackButton: some View {
+         Button { dismiss() } label: {
+             Image(systemName: "chevron.left")
+-                .font(.system(size: 16, weight: .semibold))
++                .boxzyFont(16, weight: .semibold)
+                 .foregroundStyle(.white)
+                 .frame(width: 44, height: 44)
+                 .background(Color.white.opacity(0.07), in: Circle())
+@@ -1954,39 +1830,28 @@
+                 formHeader
+ 
+                 ScrollView(showsIndicators: false) {
+-                    VStack(spacing: 16) {
+-                        field("ADDRESS LABEL", "Home", text: $label)
+-
+-                        VStack(alignment: .leading, spacing: 8) {
+-                            requiredLabel("NAME")
+-                            HStack(spacing: 12) {
+-                                input("First name", text: $firstName)
+-                                input("Last name", text: $lastName)
+-                            }
++                    VStack(alignment: .leading, spacing: 12) {
++                        Text("Contact").boxzyFont(20, weight: .semibold)
++                        HStack(alignment: .top, spacing: 12) {
++                            field("First name", "First name", text: $firstName)
++                            field("Last name", "Last name", text: $lastName)
+                         }
+-
+-                        pickerField("COUNTRY", value: "United States", required: true)
+-                        field("STREET ADDRESS", "Start typing your address…", text: $street)
+-                        field("APARTMENT, SUITE, ETC. (OPTIONAL)", "Apartment, suite, unit, building, floor, etc.", text: $apartment, required: false)
+-                        field("CITY", "City", text: $city)
+-
++                        field("Phone", "(555) 123-4567", text: $phone, keyboard: .phonePad)
++                        field("Email", "you@example.com", text: $email, keyboard: .emailAddress)
++                        Text("Address").boxzyFont(20, weight: .semibold).padding(.top, 12)
++                        field("Address label", "Home", text: $label)
++                        pickerField("Country", value: "United States", required: true)
++                        field("Street address", "Street address", text: $street)
++                        field("Apartment, suite, etc. (optional)", "Apartment, suite…", text: $apartment, required: false)
++                        field("City", "City", text: $city)
+                         HStack(alignment: .top, spacing: 12) {
+-                            field("STATE", "State", text: $state)
+-                            field("ZIP CODE", "ZIP code", text: $zip, keyboard: .numberPad)
++                            field("State", "State", text: $state)
++                            field("ZIP code", "ZIP code", text: $zip, keyboard: .numberPad)
+                         }
+-
+-                        field("PHONE", "(555) 123-4567", text: $phone, keyboard: .phonePad)
+-                        field("EMAIL", "you@example.com", text: $email, keyboard: .emailAddress)
+-
+                         Toggle("Set as default address", isOn: $isDefault)
+-                            .font(.system(size: 16))
+-                            .tint(BoxzyTheme.blue)
+-                            .padding(.horizontal, 14)
+-                            .frame(height: 44)
+-                            .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 11))
+-                            .overlay { RoundedRectangle(cornerRadius: 11).stroke(BoxzyTheme.stroke.opacity(0.72), lineWidth: 1) }
+-
+-
++                            .boxzyFont(16).tint(BoxzyTheme.gold).frame(minHeight: 44)
++                        Text("Use this address as my default for future orders.")
++                            .boxzyFont(13).foregroundStyle(BoxzyTheme.muted)
+                     }
+                     .padding(.horizontal, 16)
+                     .padding(.top, 10)
+@@ -1997,10 +1862,9 @@
+                     VStack(spacing: 8) {
+                         Text("Complete the required fields to save.")
+                             .font(.caption).foregroundStyle(BoxzyTheme.muted)
+-                        Button("SAVE ADDRESS") { saveAddress() }
+-                            .font(.system(size: 15, weight: .semibold))
+-                            .tracking(2)
+-                            .buttonStyle(AddressPrimaryButtonStyle(height: 52, cornerRadius: 11))
++                        Button("Save address") { saveAddress() }
++                            .boxzyFont(15, weight: .semibold)
++                            .buttonStyle(BoxzyPrimaryButtonStyle(height: 52, cornerRadius: 11))
+                             .disabled(!isValid)
+                             .opacity(isValid ? 1 : 0.46)
+                     }.padding(.horizontal, 20).padding(.vertical, 10).background(BoxzyTheme.background)
+@@ -2013,12 +1877,12 @@
+     private var formHeader: some View {
+         ZStack {
+             Text(addressFormTitle)
+-                .font(.system(size: 18, weight: .semibold))
++                .boxzyFont(18, weight: .semibold)
+ 
+             HStack {
+                 Button { dismiss() } label: {
+                     Image(systemName: "chevron.left")
+-                        .font(.system(size: 16, weight: .semibold))
++                        .boxzyFont(16, weight: .semibold)
+                         .foregroundStyle(.white)
+                         .frame(width: 44, height: 44)
+                         .background(BoxzyTheme.deepSurface.opacity(0.78), in: Circle())
+@@ -2035,7 +1899,7 @@
+     private func requiredLabel(_ title: String, required: Bool = true) -> some View {
+         HStack(spacing: 7) {
+             Text(title)
+-                .font(.system(size: 13, weight: .semibold))
++                .boxzyFont(13, weight: .semibold)
+                 .foregroundStyle(BoxzyTheme.muted)
+             if required {
+                 Circle().fill(BoxzyTheme.gold).frame(width: 4, height: 4)
+@@ -2046,7 +1910,7 @@
+     private func input(_ placeholder: String, text: Binding<String>, keyboard: UIKeyboardType = .default, trailingChevron: Bool = false) -> some View {
+         HStack(spacing: 8) {
+             TextField(placeholder, text: text)
+-                .font(.system(size: 16))
++                .boxzyFont(16)
+                 .keyboardType(keyboard)
+                 .textInputAutocapitalization(keyboard == .emailAddress ? .never : .words)
+                 .autocorrectionDisabled(keyboard == .emailAddress)
+@@ -2058,7 +1922,7 @@
+         }
+         .padding(.horizontal, 14)
+         .frame(maxWidth: .infinity)
+-        .frame(height: 48)
++        .frame(minHeight: 48)
+         .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 11))
+         .overlay { RoundedRectangle(cornerRadius: 11).stroke(BoxzyTheme.stroke.opacity(0.72), lineWidth: 1) }
+     }
+@@ -2067,6 +1931,14 @@
+         VStack(alignment: .leading, spacing: 7) {
+             requiredLabel(title, required: required)
+             input(placeholder, text: text, keyboard: keyboard, trailingChevron: trailingChevron)
++                .overlay {
++                    if title == "ZIP code" && !street.isEmpty && zip.isEmpty {
++                        RoundedRectangle(cornerRadius: 11).stroke(BoxzyTheme.danger, lineWidth: 1)
++                    }
++                }
++            if title == "ZIP code" && !street.isEmpty && zip.isEmpty {
++                Text("Enter ZIP code").boxzyFont(13).foregroundStyle(BoxzyTheme.danger)
++            }
+         }
+         .frame(maxWidth: .infinity, alignment: .leading)
+     }
+@@ -2081,9 +1953,9 @@
+                     .font(.caption.weight(.semibold))
+                     .foregroundStyle(.white)
+             }
+-            .font(.system(size: 16))
++            .boxzyFont(16)
+             .padding(.horizontal, 14)
+-            .frame(height: 48)
++            .frame(minHeight: 48)
+             .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 11))
+             .overlay { RoundedRectangle(cornerRadius: 11).stroke(BoxzyTheme.stroke.opacity(0.72), lineWidth: 1) }
+         }
+@@ -2101,7 +1973,7 @@
+ 
+     var body: some View {
+         ConfirmationSheetLayout(icon: "rectangle.portrait.and.arrow.right", iconColor: BoxzyTheme.blue, title: "Sign out?", message: "You can browse as a guest and sign back in at any time.") {
+-            Button("SIGN OUT", action: confirm).font(.headline).buttonStyle(BoxzyPrimaryButtonStyle())
++            Button("Sign out", action: confirm).boxzyFont(16, weight: .semibold).buttonStyle(BoxzyPrimaryButtonStyle())
+             Button("CANCEL") { dismiss() }
+                 .font(.headline).foregroundStyle(BoxzyTheme.blue).frame(maxWidth: .infinity).frame(height: 44)
+                 .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 15)).buttonStyle(.plain)
+@@ -2130,7 +2002,7 @@
+                 VStack(spacing: 0) {
+                     Capsule().fill(BoxzyTheme.muted.opacity(0.62)).frame(width: 42, height: 5).padding(.top, 10)
+                     Image(systemName: "trash")
+-                        .font(.system(size: 27, weight: .medium)).foregroundStyle(BoxzyTheme.danger)
++                        .boxzyFont(27, weight: .medium).foregroundStyle(BoxzyTheme.danger)
+                         .frame(width: 62, height: 62).background(BoxzyTheme.danger.opacity(0.1), in: Circle())
+                         .overlay(Circle().stroke(BoxzyTheme.danger.opacity(0.5), lineWidth: 1)).padding(.top, 20)
+                     Text("Delete account?").font(.title2.bold()).padding(.top, 15)
+@@ -2184,7 +2056,7 @@
+                         .disabled(!canDelete).opacity(canDelete ? 1 : 0.36).padding(.top, 12)
+                     Button("CANCEL") { dismiss() }
+                         .font(.headline).tracking(1.5).foregroundStyle(.white)
+-                        .frame(maxWidth: .infinity).frame(height: 48)
++                        .frame(maxWidth: .infinity).frame(minHeight: 48)
+                         .background(BoxzyTheme.inputSurface, in: RoundedRectangle(cornerRadius: 13))
+                         .overlay(RoundedRectangle(cornerRadius: 13).stroke(BoxzyTheme.stroke.opacity(0.7), lineWidth: 1))
+                         .buttonStyle(.plain).padding(.top, 8)
+@@ -2225,7 +2097,7 @@
+             BoxzyAccountGlow(center: .top)
+             VStack(spacing: 0) {
+                 Capsule().fill(BoxzyTheme.muted.opacity(0.55)).frame(width: 42, height: 5).padding(.top, 10)
+-                Image(systemName: icon).font(.system(size: 27, weight: .medium)).foregroundStyle(iconColor)
++                Image(systemName: icon).boxzyFont(27, weight: .medium).foregroundStyle(iconColor)
+                     .frame(width: 64, height: 64).background(iconColor.opacity(0.1), in: Circle())
+                     .overlay(Circle().stroke(iconColor.opacity(0.55), lineWidth: 1)).padding(.top, 28)
+                 Text(title).font(.title2.bold()).padding(.top, 20)
+@@ -2281,7 +2153,7 @@
+     var body: some View {
+         ZStack {
+             BoxzyBoxMark()
+-            Image(systemName: "location.fill").font(.system(size: 19, weight: .bold))
++            Image(systemName: "location.fill").boxzyFont(19, weight: .bold)
+                 .foregroundStyle(BoxzyTheme.surface).offset(y: 8)
+         }
+     }
+@@ -2289,100 +2161,12 @@
+ 
+ private struct BoxzyAccountGlow: View {
+     let center: UnitPoint
++    var body: some View { Color.clear.allowsHitTesting(false).accessibilityHidden(true) }
++}
++private struct AccountWalletSurface: View {
+     var body: some View {
+-        RadialGradient(
+-            colors: [BoxzyTheme.violet.opacity(0.14), BoxzyTheme.blue.opacity(0.08), .clear],
+-            center: center,
+-            startRadius: 12,
+-            endRadius: 340
+-        )
+-            .ignoresSafeArea().allowsHitTesting(false)
+-    }
+-}
+-
+-private struct AccountWalletSurface: View {
+-    private let cornerRadius: CGFloat = 24
+-
+-    var body: some View {
+-        ZStack {
+-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-                .fill(
+-                    LinearGradient(
+-                        colors: [
+-                            BoxzyTheme.surface.opacity(0.94),
+-                            BoxzyTheme.background.opacity(0.98)
+-                        ],
+-                        startPoint: .topLeading,
+-                        endPoint: .bottomTrailing
+-                    )
+-                )
+-
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.22), BoxzyTheme.blue.opacity(0.10), .clear],
+-                center: UnitPoint(x: 0.87, y: 0.12),
+-                startRadius: 0,
+-                endRadius: 190
+-            )
+-
+-            AccountFacetDecoration()
+-                .opacity(0.36)
+-        }
+-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+-        .overlay {
+-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-                .stroke(
+-                    LinearGradient(
+-                        colors: [BoxzyTheme.cyan.opacity(0.72), BoxzyTheme.violet.opacity(0.42)],
+-                        startPoint: .topLeading,
+-                        endPoint: .bottomTrailing
+-                    ),
+-                    lineWidth: 1
+-                )
+-        }
+-    }
+-}
+-
+-private struct AccountFacetDecoration: View {
+-    var body: some View {
+-        Canvas { context, size in
+-            let points = [
+-                CGPoint(x: size.width * 0.72, y: 0),
+-                CGPoint(x: size.width, y: size.height * 0.08),
+-                CGPoint(x: size.width * 0.83, y: size.height * 0.34),
+-                CGPoint(x: size.width, y: size.height * 0.55),
+-                CGPoint(x: size.width * 0.76, y: size.height * 0.74),
+-                CGPoint(x: size.width, y: size.height)
+-            ]
+-
+-            var path = Path()
+-            path.move(to: points[0])
+-            path.addLine(to: points[2])
+-            path.addLine(to: points[1])
+-            path.move(to: points[2])
+-            path.addLine(to: points[3])
+-            path.addLine(to: points[1])
+-            path.move(to: points[2])
+-            path.addLine(to: points[4])
+-            path.addLine(to: points[3])
+-            path.move(to: points[4])
+-            path.addLine(to: points[5])
+-            path.move(to: CGPoint(x: size.width * 0.56, y: 0))
+-            path.addLine(to: points[2])
+-            path.move(to: CGPoint(x: size.width * 0.64, y: size.height))
+-            path.addLine(to: points[4])
+-
+-            context.stroke(
+-                path,
+-                with: .linearGradient(
+-                    Gradient(colors: [BoxzyTheme.blue.opacity(0.18), BoxzyTheme.blue.opacity(0.95)]),
+-                    startPoint: .zero,
+-                    endPoint: CGPoint(x: size.width, y: size.height)
+-                ),
+-                lineWidth: 0.8
+-            )
+-        }
+-        .allowsHitTesting(false)
+-        .accessibilityHidden(true)
++        RoundedRectangle(cornerRadius: 16).fill(BoxzyTheme.surface)
++            .overlay(RoundedRectangle(cornerRadius: 16).stroke(BoxzyTheme.stroke, lineWidth: 1))
+     }
+ }
+ 
+@@ -2390,7 +2174,7 @@
+     let cornerRadius: CGFloat
+     var body: some View {
+         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-            .fill(LinearGradient(colors: [BoxzyTheme.surface.opacity(0.94), BoxzyTheme.background.opacity(0.96)], startPoint: .topLeading, endPoint: .bottomTrailing))
++            .fill(BoxzyTheme.surface)
+     }
+ }
+ 
+--- original/BoxzyApp/Theme.swift
++++ updated/BoxzyApp/Theme.swift
+@@ -2,13 +2,13 @@
+ 
+ enum BoxzyTheme {
+     // Obsidian Gold: neutral structure, one restrained brand accent.
+-    static let background = Color(white: 0.025)
+-    static let surface = Color(white: 0.07)
+-    static let stroke = Color(red: 0.270, green: 0.205, blue: 0.105)
++    static let background = Color(white: 9.0 / 255)
++    static let surface = Color(white: 20.0 / 255)
++    static let stroke = Color(white: 48.0 / 255)
+     static let goldDeep = Color(red: 0.659, green: 0.451, blue: 0.094)
+-    static let gold = Color(red: 0.851, green: 0.663, blue: 0.227)
+-    static let goldLight = Color(red: 0.941, green: 0.765, blue: 0.353)
+-    static let muted = Color(white: 0.70)
++    static let gold = Color(red: 242.0 / 255, green: 196.0 / 255, blue: 77.0 / 255)
++    static let goldLight = Color(red: 255.0 / 255, green: 214.0 / 255, blue: 102.0 / 255)
++    static let muted = Color(white: 184.0 / 255)
+ 
+     // Compatibility aliases keep every existing screen on the single gold accent.
+     static let cyan = goldLight
+@@ -30,7 +30,7 @@
+     func boxzyCard(cornerRadius: CGFloat = 16) -> some View {
+         background(
+             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+-                .fill(BoxzyTheme.surface.opacity(0.62))
++                .fill(BoxzyTheme.surface)
+                 .overlay {
+                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                         .stroke(BoxzyTheme.stroke, lineWidth: 1)
+@@ -38,3 +38,53 @@
+         )
+     }
+ }
++
++// Approved 2026-10-13 UI contract. All sizes are default Dynamic Type points.
++enum BoxzyMetrics {
++    static let pageInset: CGFloat = 20
++    static let cardRadius: CGFloat = 16
++    static let buttonHeight: CGFloat = 52
++    static let touchTarget: CGFloat = 44
++    static let actionGap: CGFloat = 12
++}
++
++private struct BoxzyScaledFont: ViewModifier {
++    @ScaledMetric private var size: CGFloat
++    let weight: Font.Weight
++    let design: Font.Design
++    init(size: CGFloat, weight: Font.Weight, design: Font.Design) {
++        _size = ScaledMetric(wrappedValue: size, relativeTo: .body)
++        self.weight = weight
++        self.design = design
++    }
++    func body(content: Content) -> some View {
++        content.font(.system(size: size, weight: weight, design: design))
++    }
++}
++
++extension View {
++    func boxzyFont(_ size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> some View {
++        modifier(BoxzyScaledFont(size: size, weight: weight, design: design))
++    }
++}
++
++struct BoxzySecondaryButtonStyle: ButtonStyle {
++    @Environment(\.isEnabled) private var isEnabled
++    func makeBody(configuration: Configuration) -> some View {
++        configuration.label.boxzyFont(16, weight: .medium)
++            .foregroundStyle(isEnabled ? Color.white : BoxzyTheme.muted)
++            .padding(.horizontal, 16).padding(.vertical, 12)
++            .frame(maxWidth: .infinity, minHeight: BoxzyMetrics.buttonHeight)
++            .background(BoxzyTheme.surface, in: RoundedRectangle(cornerRadius: 14))
++            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(white: 0.45), lineWidth: 1))
++            .opacity(configuration.isPressed ? 0.8 : 1)
++    }
++}
++
++struct BoxzyAdaptiveScroll<Content: View>: View {
++    let enabled: Bool
++    @ViewBuilder var content: () -> Content
++    var body: some View {
++        if enabled { ScrollView { content() } } else { content() }
++    }
++}
+--- original/BoxzyApp/WelcomeSignInView.swift
++++ updated/BoxzyApp/WelcomeSignInView.swift
+@@ -41,13 +41,6 @@
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+ 
+-            RadialGradient(
+-                colors: [BoxzyTheme.goldDeep.opacity(0.15), BoxzyTheme.gold.opacity(0.05), .clear],
+-                center: UnitPoint(x: 0.5, y: 0.36),
+-                startRadius: 12,
+-                endRadius: 300
+-            )
+-            .ignoresSafeArea()
+ 
+             VStack(spacing: 0) {
+                 Spacer(minLength: 28)
+@@ -70,7 +63,7 @@
+                         Spacer()
+                         Button(action: close) {
+                             Image(systemName: "xmark")
+-                                .font(.system(size: 17, weight: .semibold))
++                                .boxzyFont(16, weight: .semibold)
+                                 .foregroundStyle(.white)
+                                 .frame(width: 44, height: 44)
+                                 .background(BoxzyTheme.surface.opacity(0.88), in: Circle())
+@@ -115,6 +108,12 @@
+             )
+             .interactiveDismissDisabled()
+         }
++        .onAppear {
++#if DEBUG
++            if ProcessInfo.processInfo.arguments.contains("-BoxzyPhonePreview") { isPresentingPhoneVerification = true }
++            if ProcessInfo.processInfo.arguments.contains("-BoxzyLegalPreview") { legalDocument = .terms }
++#endif
++        }
+         .preferredColorScheme(.dark)
+         .animation(.easeOut(duration: 0.22), value: errorMessage)
+     }
+@@ -132,7 +131,7 @@
+                     .scaledToFit()
+                     .frame(maxWidth: 230)
+                     .shadow(color: BoxzyTheme.gold.opacity(0.18), radius: 26)
+-                    .accessibilityLabel("BOXXY")
++                    .accessibilityLabel("BOXZY")
+             }
+             .frame(height: 250)
+ 
+@@ -197,7 +196,7 @@
+                 .frame(width: 24, height: 24)
+ 
+                 Text(title)
+-                    .font(.system(size: 17, weight: .semibold))
++                    .boxzyFont(16, weight: .semibold)
+                     .lineLimit(1)
+             }
+             .foregroundStyle(foregroundColor)
+@@ -210,7 +209,7 @@
+     private func signInErrorBanner(_ message: String) -> some View {
+         HStack(spacing: 12) {
+             Image(systemName: "exclamationmark.circle.fill")
+-                .font(.system(size: 19, weight: .semibold))
++                .boxzyFont(19, weight: .semibold)
+                 .foregroundStyle(signInErrorColor)
+ 
+             Text(message)
+@@ -367,13 +366,6 @@
+         ZStack {
+             BoxzyTheme.background.ignoresSafeArea()
+ 
+-            RadialGradient(
+-                colors: [BoxzyTheme.violet.opacity(0.20), BoxzyTheme.blue.opacity(0.10), .clear],
+-                center: UnitPoint(x: 0.50, y: 0.32),
+-                startRadius: 12,
+-                endRadius: 300
+-            )
+-            .ignoresSafeArea()
+ 
+             ScrollView(.vertical, showsIndicators: false) {
+                 VStack(spacing: 0) {
+@@ -446,15 +438,10 @@
+ 
+     private var securityMark: some View {
+         ZStack {
+-            Circle()
+-                .fill(BoxzyTheme.blue.opacity(0.12))
+-                .frame(width: 112, height: 112)
+-                .blur(radius: 18)
+-
+             Image(systemName: "shield")
+-                .font(.system(size: 84, weight: .medium))
++                .boxzyFont(84, weight: .medium)
+                 .foregroundStyle(BoxzyTheme.blue)
+-                .shadow(color: BoxzyTheme.blue.opacity(0.65), radius: 16)
++
+ 
+             Image(systemName: step == .phone ? "iphone" : "ellipsis")
+                 .font(.system(size: step == .phone ? 36 : 30, weight: .semibold))
+@@ -467,7 +454,7 @@
+     private var phoneStep: some View {
+         VStack(spacing: 0) {
+             Text("Add your phone number")
+-                .font(.largeTitle.weight(.bold))
++                .boxzyFont(28, weight: .bold)
+                 .multilineTextAlignment(.center)
+ 
+             Text("We’ll send a verification code to confirm it’s you.")
+@@ -513,16 +500,15 @@
+                     if isSendingCode {
+                         ProgressView().tint(.white)
+                     } else {
+-                        Text("SEND CODE")
+-                            .font(.headline)
++                        Text("Send code")
++                            .boxzyFont(16, weight: .semibold)
+                     }
+                 }
+                 .frame(maxWidth: .infinity)
+-                .frame(height: 58)
+-            }
+-            .buttonStyle(BoxzyPhonePrimaryButtonStyle())
++            }
++            .buttonStyle(BoxzyPrimaryButtonStyle())
+             .disabled(!isPhoneValid || isSendingCode)
+-            .opacity(isPhoneValid ? 1 : 0.42)
++
+             .padding(.top, 18)
+ 
+             Text("Standard messaging rates may apply. We’ll only use this number for account security and delivery updates.")
+@@ -544,7 +530,7 @@
+     private var codeStep: some View {
+         VStack(spacing: 0) {
+             Text("Enter verification code")
+-                .font(.largeTitle.weight(.bold))
++                .boxzyFont(28, weight: .bold)
+                 .multilineTextAlignment(.center)
+ 
+             Text("We sent a 6-digit code to \(formattedFullPhoneNumber).")
+@@ -593,16 +579,15 @@
+                     if isVerifying {
+                         ProgressView().tint(.white)
+                     } else {
+-                        Text("VERIFY")
+-                            .font(.headline)
++                        Text("Verify")
++                            .boxzyFont(16, weight: .semibold)
+                     }
+                 }
+                 .frame(maxWidth: .infinity)
+-                .frame(height: 58)
+-            }
+-            .buttonStyle(BoxzyPhonePrimaryButtonStyle())
++            }
++            .buttonStyle(BoxzyPrimaryButtonStyle())
+             .disabled(!isCodeComplete || isVerifying)
+-            .opacity(isCodeComplete ? 1 : 0.42)
++
+             .padding(.top, verificationError == nil ? 28 : 20)
+ 
+             Group {
+@@ -754,24 +739,6 @@
+ 
+     private var phoneErrorColor: Color {
+         Color(red: 1.0, green: 0.24, blue: 0.30)
+-    }
+-}
+-
+-private struct BoxzyPhonePrimaryButtonStyle: ButtonStyle {
+-    func makeBody(configuration: Configuration) -> some View {
+-        configuration.label
+-            .foregroundStyle(BoxzyTheme.background)
+-            .background(
+-                BoxzyTheme.primaryGradient,
+-                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+-            )
+-            .overlay {
+-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+-                    .stroke(BoxzyTheme.blue.opacity(0.80), lineWidth: 1)
+-            }
+-            .shadow(color: BoxzyTheme.violet.opacity(configuration.isPressed ? 0.10 : 0.28), radius: 14, y: 6)
+-            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+     }
+ }
+ 
+--- original/BoxzyApp.xcodeproj/project.pbxproj
++++ updated/BoxzyApp.xcodeproj/project.pbxproj
+@@ -275,7 +275,7 @@
+ 				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+ 				"COPY_PHASE_STRIP" = "NO";
+ 				"CLANG_ENABLE_OBJC_ARC" = "YES";
+-				"BOXZY_BUNDLE_ID" = "com.boxzy.mobile.prism";
++				"BOXZY_BUNDLE_ID" = "com.boxzy.mobile.prism.review20261013";
+ 			};
+ 			"name" = "Debug";
+ 		};
+@@ -322,7 +322,7 @@
+ 				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+ 				"COPY_PHASE_STRIP" = "NO";
+ 				"CLANG_ENABLE_OBJC_ARC" = "YES";
+-				"BOXZY_BUNDLE_ID" = "com.boxzy.mobile.prism";
++				"BOXZY_BUNDLE_ID" = "com.boxzy.mobile.prism.review20261013";
+ 			};
+ 			"name" = "Release";
+ 		};
+--- original/BoxzyAppUITests/DeliverySmokeTests.swift
++++ updated/BoxzyAppUITests/DeliverySmokeTests.swift
+@@ -11,6 +11,7 @@
+         app.launch()
+     }
+     private func shot(_ name: String) {
++        Thread.sleep(forTimeInterval: 0.6)
+         let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+     }
+     private func amount(_ value: String, file: StaticString = #filePath, line: UInt = #line) {
+@@ -61,18 +62,18 @@
+             let confirm = app.buttons["selection.confirm"]
+             let later = app.buttons["selection.later"]
+             XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+-            XCTAssertEqual(confirm.label, "Choose Box 07")
++            XCTAssertEqual(confirm.label, "Open Box 07")
+             XCTAssertEqual(app.scrollViews.count, 0)
+             XCTAssertTrue(confirm.isHittable)
+             XCTAssertTrue(later.isHittable)
+             XCTAssertLessThan(confirm.frame.maxY, later.frame.minY)
+             XCTAssertLessThan(later.frame.maxY, app.frame.maxY - 20)
+-            XCTAssertTrue(app.staticTexts["YOUR \(box.uppercased()) BOX IS READY"].exists)
++            XCTAssertTrue(app.staticTexts["Ready to open"].exists)
+             shot("selection-\(box)")
+             if box == "starter" {
+                 let from = app.coordinate(withNormalizedOffset: CGVector(dx: 0.78, dy: 0.50))
+                 from.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.50)))
+-                XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == 'selection.confirm' AND label == 'Choose Box 08'")).firstMatch.waitForExistence(timeout: 3))
++                XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == 'selection.confirm' AND label == 'Open Box 08'")).firstMatch.waitForExistence(timeout: 3))
+             }
+             later.tap()
+             XCTAssertTrue(app.buttons["home.buy"].waitForExistence(timeout: 5))
+@@ -91,6 +92,7 @@
+         XCTAssertTrue(app.buttons["funds.submit"].isEnabled)
+         app.buttons["funds.submit"].tap() // Supplied offline mock, no payment API.
+         XCTAssertTrue(app.staticTexts["Payment failed"].waitForExistence(timeout: 8))
++        shot("audit-deposit-status")
+         app.buttons["TRY AGAIN"].tap()
+         amount("120.00")
+         app.buttons["Close"].tap()
+@@ -214,4 +216,81 @@
+         shot("updated-sell-offer")
+     }
+ 
++    func testApprovedAuditCoverage() {
++        let cases: [(String, [String])] = [
++            ("post-sale", ["-BoxzyPostSalePreview"]),
++            ("account", ["-BoxzyAccount"]),
++            ("profile", ["-BoxzyAccount", "-BoxzyProfilePreview"]),
++            ("signout", ["-BoxzyAccount", "-BoxzySignOutPreview"]),
++            ("delete", ["-BoxzyAccount", "-BoxzyDeleteAccountPreview"]),
++            ("addresses", ["-BoxzyAccount", "-BoxzyAddressesPreview"]),
++            ("transactions", ["-BoxzyAccount", "-BoxzyTransactionsPreview"]),
++            ("support", ["-BoxzyAccount", "-BoxzySupportPreview"]),
++            ("rankings", ["-BoxzyRankings"]),
++            ("withdraw-requested", ["-BoxzyAccount", "-BoxzyWithdrawalRequestedPreview"]),
++            ("withdraw-processing", ["-BoxzyAccount", "-BoxzyWithdrawalProcessingPreview"]),
++            ("withdraw-failed", ["-BoxzyAccount", "-BoxzyWithdrawalFailedPreview"])
++        ]
++        for (name, flags) in cases {
++            app = XCUIApplication()
++            app.launchArguments = ["-boxzy.isAuthenticated", "YES", "-boxzy.balance", "304", "-boxzy.didSeedAccountDemoData", "YES", "-boxzy.selectedBoxID", "starter", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + flags
++            app.launch()
++            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 8))
++            shot("audit-" + name)
++            if name == "rankings" { app.buttons["How rankings work"].tap(); shot("audit-ranking-rules") }
++            if name == "post-sale" {
++                XCTAssertTrue(app.buttons["sale.done"].isHittable)
++                XCTAssertTrue(app.buttons["sale.again"].isHittable)
++                XCTAssertLessThanOrEqual(app.buttons["sale.again"].frame.minY - app.buttons["sale.done"].frame.maxY, 16)
++                app.buttons["sale.done"].tap()
++                XCTAssertTrue(app.buttons["home.buy"].waitForExistence(timeout: 5))
++            }
++        }
++    }
++
++    func testRemainingModuleCoverage() {
++        let cases: [(String, [String], Bool)] = [
++            ("guest", ["-BoxzyAccount", "-BoxzyGuestPreview"], true),
++            ("phone", ["-BoxzyPhonePreview"], false),
++            ("legal", ["-BoxzyLegalPreview"], false),
++            ("collection-empty", ["-BoxzyCollection", "-BoxzyEmptyCollection"], true),
++            ("addresses-empty", ["-BoxzyAccount", "-BoxzyAddressesPreview", "-BoxzyEmptyAddresses"], true),
++            ("address-form", ["-BoxzyAccount", "-BoxzyAddressesPreview", "-BoxzyAddressFormPreview"], true),
++            ("transactions-empty", ["-BoxzyAccount", "-BoxzyTransactionsPreview", "-BoxzyEmptyTransactions"], true),
++            ("transaction-detail", ["-BoxzyAccount", "-BoxzyTransactionsPreview", "-BoxzyTransactionDetailPreview"], true),
++            ("support-topic", ["-BoxzyAccount", "-BoxzySupportPreview", "-BoxzySupportTopic"], true),
++            ("support-article", ["-BoxzyAccount", "-BoxzySupportPreview", "-BoxzySupportArticle"], true)
++        ]
++        for (name, flags, authenticated) in cases {
++            app = XCUIApplication()
++            app.launchArguments = ["-boxzy.isAuthenticated", authenticated ? "YES" : "NO", "-boxzy.balance", "304", "-boxzy.didSeedAccountDemoData", "YES", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"] + flags
++            app.launch()
++            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 8))
++            shot("audit-" + name)
++        }
++    }
++    func testLargeTextLayout() {
++        for (name, flags) in [("home", [String]()), ("details", ["-BoxzyDetailsPreview"]), ("result", ["-BoxzyPrizeResultPreview"]), ("collection", ["-BoxzyCollection"])] {
++            app = XCUIApplication()
++            app.launchArguments = ["-boxzy.isAuthenticated", "YES", "-boxzy.balance", "304", "-boxzy.selectedBoxID", "super", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL", "-AppleLanguages", "(en)"] + flags
++            app.launch()
++            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 8))
++            shot("large-" + name)
++            if name == "home" {
++                app.swipeUp(); app.swipeUp()
++                XCTAssertTrue(app.buttons["home.buy"].isHittable)
++                app.buttons["home.buy"].tap()
++                XCTAssertTrue(app.buttons["selection.confirm"].waitForExistence(timeout: 5))
++                app.swipeUp(); app.swipeUp()
++                XCTAssertTrue(app.buttons["selection.later"].isHittable)
++                shot("large-selection")
++            }
++            if name == "result" {
++                app.swipeUp(); app.swipeUp()
++                XCTAssertTrue(app.buttons["Keep in my collection"].isHittable)
++                shot("large-result-actions")
++            }
++        }
++    }
++
+ }

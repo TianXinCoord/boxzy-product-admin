@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-13",
+  "test_summary": "原生编译通过；完整15项测试、评审修正后6项确认、小屏375pt的4项测试、补充空状态截图测试均为0失败。系统Accessibility XXXL覆盖首页、选号、奖池、结果、收藏。",
+  "tests": [
+    {
+      "log": "confirm.log",
+      "passed": 15,
+      "failures": 0
+    },
+    {
+      "log": "final.log",
+      "passed": 6,
+      "failures": 0
+    },
+    {
+      "log": "small.log",
+      "passed": 4,
+      "failures": 0
+    },
+    {
+      "log": "empty.log",
+      "passed": 1,
+      "failures": 0
+    }
+  ],
+  "modules": 38,
+  "native_project_original_unchanged": true,
+  "original_guide_sha256": "cbe820079e7aef294f6955a654604109f0738873adfd6a258b9b4dda6488a2cf",
+  "original_guide_unchanged": true,
+  "native_copy": "BOXZY-iOS-Native-2026-10-13",
+  "bundle_id": "com.boxzy.mobile.prism.review20261013",
+  "review": {
+    "design": "独立查看37张首轮原生截图；最后4处确认修复到位",
+    "code": "独立源码检查38模块，修正大字滚动、标题高度、寄送补款、帮助文案等"
+  },
+  "limitations": [
+    "未进行真实支付或服务端接入验收",
+    "HTML只做静态结构/资源/脚本校验，未声称file://浏览器交互验收",
+    "界面截图覆盖不等于每一业务异常均运行验证",
+    "首轮失败是测试按可见Rules文本寻找按钮，实际无障碍名称How rankings work，已修正测试并通过"
+  ],
+  "icon_update": {
+    "build": "icon-build.log: BUILD SUCCEEDED",
+    "verified": "模拟器账户访客头像与选中导航截图核对；首页/账户/排行榜/收藏主页面截图已刷新",
+    "scope": "仅替换共用账户图标，无业务逻辑变更；其余历史截图中的旧导航图标以共用AccountGlyph规范为准",
+    "tests": "沿用此前流程测试结果，本次重新编译与截图检查，未重跑全套流程测试"
+  },
+  "referral_removal": {
+    "build": "no-referrals-build.log: BUILD SUCCEEDED",
+    "verified": "原生Swift源码无邀请/推荐码关键词；账户和帮助中心两张模拟器截图已核对并更新最终说明",
+    "scope": "删除账户推荐码入口/复制提示、三篇帮助文章；分类改Account；搜索复用清理后的文章数据"
+  }
+}
